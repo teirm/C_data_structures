@@ -1,0 +1,85 @@
+AUTHOR:	Cyrus Ramavarapu
+LAST UPDATED: 06 November 2015 
+
+LINKED LIST
+
+HEADER FILES
+
+	linked_list.h
+
+DESCRIPTION
+	
+	A linked list data structure. Written to have nodes that only hold ints.  Easily modifiable to contain other types.
+
+STRUCTURES
+
+struct node{
+	int value;
+	struct node *next;
+};
+
+FUNCTIONS
+
+int get_len(struct node **list_head);
+	Returns the length of the linked list.
+
+int locate(int value, struct node **list_head);
+	Locates the first instance of a node with 'value' within the linked list.
+	Returns position (int) in list. The function 'retrieve' or 'delete' can be used to get this node.
+
+	Since the node struct only holds a value of type int, comparisons are made using ==.  If a more complex type is stored, a comparator will have to be implemented. 
+
+struct node *retrieve(int position, struct node **list_head);
+	Returns a pointer to the node located at position within the linked list.
+	Conditional in for loop uses '<' but returns next node. E.g. Node 0 is returned if loop never executes.  Node 1 is returned for 1 execution.
+
+struct node *next(int position, struct node **list_head);
+	Returns a pointer to the node located at position + 1 in the linked list.
+
+struct node *previous(int position, struct node **list_head);
+	Returns a pointer to the node located at position -1 in the linked list.	
+
+int insert(struct node *entry, int position, struct node **list_head);
+	Inserts a node 'entry' at position within the linked list. Returns 0 on failure and 1 on success.
+
+int replace(int value, int position, struct node **list_head);
+	Replaces value of node at 'position' with 'value'.  Returns 0 on failure and 1 on sucess.
+
+struct node *delete_entry(int position, struct node **list_head);
+	Deletes the entry located at position within the linked list. A pointer to the deleted node is returned.
+	Deletion of head node will loose everything except head node.
+
+int first(struct node **list_head);
+	Returns the head node of the linked list.  
+
+int reverse(struct node **list_head);
+	Reverses the linked list. NOT IMPLEMENTED YET. 
+
+NOTES
+
+	Node struct only holds an int. 
+
+	All memory management is the responsibility of the user.  Therefore programs implementing this linked list will need <stdlib.h> for malloc and free (or derivatives).
+	Each node must be deleted and then free'd.
+
+	Header files need to know of structs before using them in prototypes!
+	
+	The linked list is indexed from 0.
+
+	The function previous has an additional safety check to ensure that the indexed position is not less than 0.
+
+	The function next has an additional safety check to ensure that the indexed position is not less than 0.
+
+	Giving gcc the source for the -o flag is bad.  Over writes source.
+
+BUGS
+
+	Compiled driver_test.c using 
+		gcc -Wall -Wextra -o driver_test driver_test.c
+
+		Only warnings are regarding unused argc and **argv.
+	
+	Compiled array_driver.c using
+		gcc -Wall -Wextra -o array_test array_test.c
+
+		No warnings produced.

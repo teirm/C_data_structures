@@ -148,3 +148,7 @@ struct node *first(struct node **list_head)
 {
 	return *list_head;
 }
+
+struct node *reverse(struct node **list_head)
+{
+}

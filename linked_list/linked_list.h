@@ -41,4 +41,4 @@ struct node *first(struct node **list_head);
 
 /* Reverses the given linked list */
 /* NOT IMPLEMENTED YET */
-int reverse(struct node **list_head);
+struct node *reverse(struct node **list_head);

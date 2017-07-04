@@ -3,6 +3,8 @@ Date: 05 November 2015
 Purpose: Linked list data structure 
 */
 
+#include <stdlib.h>
+#include <stdio.h>
 #include "linked_list.h"
 
 int get_len(struct node *list_head)
@@ -13,10 +15,11 @@ int get_len(struct node *list_head)
 	length = 0;
 	current_node = list_head;
 
-	while (current_node->next != NULL) {
-		current_node = current_node->next;	
-		length++;
-	}
+    /* Need to check if the list even exists */
+    while (current_node != NULL && current_node->next != NULL) {
+        current_node = current_node->next;	
+        length++;
+    }
 
 	return length;
 }
@@ -151,4 +154,22 @@ struct node *first(struct node **list_head)
 
 struct node *reverse(struct node **list_head)
 {
+    struct node *current_node      = NULL;
+    struct node *next_node       = NULL;    
+    struct node *reverse         = NULL; 
+
+    current_node = *list_head;
+    next_node = current_node->next;
+
+    while (next_node != NULL) {
+        current_node->next = reverse;
+        reverse = current_node;
+        current_node = next_node;
+        next_node = current_node->next;
+    }
+
+    current_node->next = reverse;
+    reverse = current_node;
+    
+    return reverse;
 }

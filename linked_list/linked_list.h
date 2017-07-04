@@ -2,6 +2,8 @@
 Date: 05 November 2015 
 Purpose: Header file for linked_list.c
 */
+#ifndef LINKED_LIST_GUARD
+#define LINKED_LIST_GUARD
 
 /* GLOBALS */
 struct node{
@@ -40,5 +42,7 @@ struct node *delete_entry(int position, struct node **list_head);
 struct node *first(struct node **list_head);
 
 /* Reverses the given linked list */
-/* NOT IMPLEMENTED YET */
 struct node *reverse(struct node **list_head);
+
+#endif
+

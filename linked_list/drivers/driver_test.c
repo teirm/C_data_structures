@@ -18,11 +18,9 @@ void test_replace(int value, int position, struct node **list_head);
 void test_insert(int value, int position, struct node **list_head);
 void test_delete(int position, struct node **list_head);
 void free_all(struct node **list_head);
-
-int main(int argc, char **argv)
-{
-	int i;
-	struct node *list_head;
+int main() {
+	int i                           = 0;
+	struct node *list_head          = NULL;
 
 	printf("A test program for the linked list data structure\n");
 
@@ -83,7 +81,8 @@ int test_length(struct node **list_head)
 
 int append_node(int new_value, struct node **list_head)
 {
-	int list_length;	struct node *new_node;
+	int list_length;
+    struct node *new_node;
 
 	list_length = get_len(*list_head);
 

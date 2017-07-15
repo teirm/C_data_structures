@@ -113,7 +113,7 @@ int insert(struct node *entry, int position, struct node **list_head)
 	struct node *next_node;	
 
 	if (position > get_len(*list_head)+1) {
-		return 0;
+		return 1;
     }
 
 	if (position == 0) {
@@ -130,7 +130,7 @@ int insert(struct node *entry, int position, struct node **list_head)
 		previous_node->next = entry;
 	}	
 
-	return 1;
+	return 0;
 }
 
 struct node *delete_entry(int position, struct node **list_head)

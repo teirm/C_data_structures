@@ -11,6 +11,7 @@ linked list data structure
 #include "linked_list_tests.h"
 
 
+/* Entry point for test suite */
 int main() {
 	int i                           = 0;
 	struct node *list_head          = NULL;
@@ -91,10 +92,10 @@ int append_node(int new_value, struct node **list_head)
 	new_node->value = new_value;
 
 	if (insert(new_node, list_length+1, list_head)) {
-		return 1;
+		return 0;
     } else {
         printf("Returning zero\n");
-		return 0;
+		return 1;
     }
 }
 

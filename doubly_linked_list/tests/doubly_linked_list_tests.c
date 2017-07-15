@@ -12,18 +12,20 @@
 /* Macro to announce if the test failed or passed */
 #define VERIFY_TEST(x, name) {\
 if (x == 1) {\
-    printf("[FAILURE] Test %s\n", name);\
+    printf("[FAILURE] %s\n", name);\
 } else {\
-    printf("[PASSED] Test %s\n", name);\
+    printf("[PASSED] %s\n", name);\
 }\
 }
 
 /* Casts and dereferences a void pointer to an int */
 #define VOID_TO_INT(void_ptr) *(int *)(void_ptr) 
 
+/* Maximum length of the list for testing */
 #define MAX_LIST_LENGTH 20
 
-#define DEBUG 1
+/* Using debugging output */
+#define DEBUG 0
 
 /*
  * Should return that an empty list has a 
@@ -35,6 +37,10 @@ int empty_test(
     int length = get_length(head);
 
     if (length != 0) {
+#if DEBUG
+        printf("[Empty Test]: Empty list returned length %d\n",
+                length);
+#endif
         return 1;
     }
 
@@ -77,16 +83,28 @@ int append_test(
     
     /* The append should succeed */
     if (rc != 0) {
+#if DEBUG
+        printf("[Append Test]: append failed with rc %d\n",
+                rc);
+#endif
         return 1;
     }
     
     /* The value in the head node should remain the same */
     if (VOID_TO_INT((*head)->value) != org_head_value) {
+#if DEBUG
+        printf("[Append Test]: head node value changed to %d\n",
+                VOID_TO_INT((*head)->value));
+#endif
         return 1;
     }
     
     /* The node to previous should still be null */
     if ((*head)->previous != NULL) {
+#if DEBUG
+        printf("[Append Test]: head->previous points to %p\n",
+                (*head)->previous);
+#endif
         return 1;
     }
 
@@ -94,6 +112,9 @@ int append_test(
 
     /* The new node should not be NULL */
     if (new_node == NULL) {
+#if DEBUG
+        printf("[Append Test]: new node was NULL\n");
+#endif
         return 1;
     }
     
@@ -101,6 +122,10 @@ int append_test(
      * The head node in this case.
      */
     if (new_node->previous != *head) {
+#if DEBUG
+        printf("[Append Test]: new_node->previous points to %p\n",
+                new_node->previous);
+#endif
         return 1;
     }
     
@@ -108,6 +133,10 @@ int append_test(
      * The new node should have the new value stored.
      */
     if (VOID_TO_INT(new_node->value) != *new_value) {
+#if DEBUG
+        printf("[Append Test]: new_node holds %d instead of %d\n",
+                VOID_TO_INT(new_node->value), *new_value);
+#endif
         return 1;
     }
     
@@ -115,11 +144,14 @@ int append_test(
      * The new node should point to NULL as next.
      */
     if (new_node->next != NULL) {
+#if DEBUG
+        printf("[Append Test]: new_node->next points %p\n",
+                new_node->next);
+#endif
         return 1;
     }
 
     return 0;
-
 }
 
 int get_test(
@@ -134,20 +166,19 @@ int get_test(
     int current_node_value              = 0;
 #endif
 
-
     if (list_length != current_length) {
         return 1;
     }
 
 #if DEBUG
-    printf("Passed length check\n");
+    printf("[Get Test]: Passed length check\n");
 #endif
 
     for (int i = 0; i < current_length; i++) {
         current_node = get(head, i);
 #if DEBUG
         current_node_value = VOID_TO_INT(current_node->value);
-        printf("Node %d Value %d\n", i, current_node_value);
+        printf("[Get Test]: Node %d Value %d\n", i, current_node_value);
 #endif
         if (node_value != VOID_TO_INT(current_node->value)) {
             return 1;
@@ -159,7 +190,7 @@ int get_test(
 
     if (current_node != NULL) {
 #if DEBUG
-        printf("Current node contains value %d\n", 
+        printf("[Get Test]: Current node contains value %d\n", 
                 VOID_TO_INT(current_node->value));
 #endif
     return 1;
@@ -167,6 +198,76 @@ int get_test(
         
     return 0;
 }
+
+int get_last_test(
+        struct dbl_node         *head,
+        int                     last_value)
+{
+    struct dbl_node *last_node      = NULL;
+    
+    last_node = get_last(head);
+
+    if (VOID_TO_INT(last_node->value) != last_value) {
+#if DEBUG
+        printf("[Last Test]: last node had %d instead of %d\n",
+                VOID_TO_INT(last_node->value), last_value);
+#endif
+        return 1;
+    }
+    return 0;
+}
+
+int reverse_read_test(
+        struct dbl_node         *head,
+        int                     last_value)
+{
+    struct dbl_node *current_node      = NULL;
+    
+    for (current_node = get_last(head);
+            current_node != NULL;
+            current_node = current_node->previous) {
+#if DEBUG
+        printf("[Reverse Read Test]: Current Node has value %d\n",
+                VOID_TO_INT(current_node->value));
+#endif
+        if (VOID_TO_INT(current_node->value) != last_value) {
+#if DEBUG
+            printf("[Reverse Read Test]: Node had value %d instead of %d\n",
+                    VOID_TO_INT(current_node->value), last_value);
+#endif 
+            return 1;
+        }
+        last_value--;
+    }
+
+    return 0;
+}
+
+int free_list_test(
+        struct dbl_node         *head)
+{
+#if DEBUG
+    int loop_counter                    = 0;
+#endif
+    struct dbl_node *current_node       = NULL;
+    struct dbl_node *next_node          = NULL;
+
+    for (current_node = head;
+            current_node != NULL;
+            current_node = next_node) {
+        next_node = current_node->next;
+#if DEBUG
+        printf("[Free List Test]: --------Iteration %d--------\n", 
+                loop_counter);   
+        printf("[Free List Test]: Current node: %p\nNext Node: %p\n",
+                current_node, next_node);
+        loop_counter++;
+#endif
+        free(current_node);
+    }
+    return 0;
+}
+
 
 
 /* Entry point for test suite */
@@ -194,12 +295,10 @@ int main()
     new_value = 1;
     rc = append_test(&head, &new_value); 
     VERIFY_TEST(rc, "append_test");
-
     /*
      * Append twenty (20) nodes to the
      * list and verify contents.
      */
-
     for (int i = 0; i < MAX_LIST_LENGTH; i++) {
         list_values[i] = i+2;
         /* Each node holds a pointer to 
@@ -212,5 +311,16 @@ int main()
     rc = get_test(head, current_length);
     VERIFY_TEST(rc, "get_test"); 
 
+    rc = get_last_test(head, 
+                       list_values[MAX_LIST_LENGTH-1]);
+    VERIFY_TEST(rc, "get_last_test");
+
+    rc = reverse_read_test(head,
+                           list_values[MAX_LIST_LENGTH-1]);
+    VERIFY_TEST(rc, "reverse_read_test");
+
+    rc = free_list_test(head);
+    VERIFY_TEST(rc, "free_list_test");
+    
     return 0;
 }

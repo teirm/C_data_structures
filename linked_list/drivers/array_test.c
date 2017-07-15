@@ -33,7 +33,7 @@ int append_node(int new_value, struct node **list_head)
 {
 	int list_length;	struct node *new_node;
 
-	list_length = get_len(list_head);
+	list_length = get_len(*list_head);
 
 	new_node = malloc(sizeof *new_node);
 	new_node->value = new_value;
@@ -51,7 +51,7 @@ void traverse_list(struct node **list_head)
 	int list_length;	
 	struct node *current;
 	
-	list_length = get_len(list_head);
+	list_length = get_len(*list_head);
 
 	for (i = 0; i <= list_length; i++) {
 		current = retrieve(i, list_head);

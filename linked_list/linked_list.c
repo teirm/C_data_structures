@@ -4,7 +4,6 @@ Purpose: Linked list data structure
 */
 
 #include <stdlib.h>
-#include <stdio.h>
 #include "linked_list.h"
 
 int get_len(struct node *list_head)
@@ -45,8 +44,9 @@ struct node *retrieve(int position, struct node **list_head)
 	int node_counter;	
 	struct node *current_node;
 
-	if (position > get_len(*list_head))
+	if (position > get_len(*list_head)) {
 		return NULL;
+    }
 
 	current_node = *list_head;
 
@@ -64,8 +64,9 @@ struct node *next(int position, struct node **list_head)
 
 	current_node = *list_head;
 
-	if (position + 1> get_len(*list_head) || position + 1 < 0)
+	if (position + 1> get_len(*list_head) || position + 1 < 0) {
 		return NULL;
+    }
 
 	for (node_counter = 0; node_counter < position+1; node_counter++) {
 		current_node = current_node->next;
@@ -81,8 +82,9 @@ struct node *previous(int position, struct node **list_head)
 
 	current_node = *list_head;
 
-	if (position - 1 > get_len(*list_head) || position == 0)
+	if (position - 1 > get_len(*list_head) || position == 0) {
 		return NULL;
+    }
 
 	for (node_counter = 0; node_counter < position-1; node_counter++) {
 		current_node = current_node->next;
@@ -95,8 +97,9 @@ int replace(int value, int position, struct node **list_head)
 {
 	struct node *selected_node;
 
-	if (position > get_len(*list_head)+1)
+	if (position > get_len(*list_head)+1) {
 		return 0;
+    }
 
 	selected_node = retrieve(position, list_head);
 	selected_node->value = value;
@@ -109,15 +112,19 @@ int insert(struct node *entry, int position, struct node **list_head)
 	struct node *previous_node;
 	struct node *next_node;	
 
-	if (position > get_len(*list_head)+1)
+	if (position > get_len(*list_head)+1) {
 		return 0;
+    }
 
 	if (position == 0) {
 		entry->next = (*list_head);	
 		*list_head = entry;	
-	}
-	else {		
-		next_node = next(position, list_head);
+	} else {
+        /* The next node is the node at this position.
+         * we don't want to accidently drop a node by
+         * skipping it.
+         */
+		next_node = retrieve(position, list_head);
 		previous_node = previous(position, list_head);
 		entry->next = next_node;
 		previous_node->next = entry;
@@ -131,16 +138,18 @@ struct node *delete_entry(int position, struct node **list_head)
 	struct node *delete_node;
 	struct node *previous_node;
 
-	if (position > get_len(*list_head))
-			return NULL;
+	if (position > get_len(*list_head)) {
+        return NULL;
+    }
 
 	delete_node = retrieve(position, list_head);
 	previous_node = previous(position, list_head);
 
-	if (previous_node != NULL)	
+	if (previous_node != NULL) {	
 		previous_node->next = delete_node->next;
-	else
-		*list_head = (*list_head)->next;
+    } else {
+        *list_head = (*list_head)->next;
+    }
 
 	delete_node->next = NULL;
 

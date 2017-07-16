@@ -14,7 +14,7 @@ int append(
     struct dbl_node *new_node       = NULL;
     
     new_node = calloc(1, sizeof *new_node);
-    
+
     if (new_node == NULL) {
         return 1;
     }
@@ -113,6 +113,31 @@ int get_length(
     }
     
     return counter;
+}
+
+
+int delete_node(
+        struct dbl_node     *node)
+{
+    struct dbl_node *previous_node      = NULL;
+    struct dbl_node *next_node          = NULL;
+
+    if (node == NULL) {
+        return 1;
+    }
+
+    previous_node = node->previous;
+    next_node = node->next;
+   
+    if (previous_node != NULL) {
+        previous_node->next = next_node;
+    }  
+    if (next_node != NULL) {
+        next_node->previous = previous_node;
+    }
+    free(node);
+    
+    return 0;
 }
 
    

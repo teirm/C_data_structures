@@ -42,4 +42,9 @@ struct dbl_node *get(struct dbl_node *head, int position);
  */
 int get_length(struct dbl_node *head);
 
+/*
+ * Delete a node.
+ */
+int delete_node(struct dbl_node *node);
+
 #endif

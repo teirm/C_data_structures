@@ -263,7 +263,7 @@ int free_list_test(
                 current_node, next_node);
         loop_counter++;
 #endif
-        free(current_node);
+        delete_node(current_node); 
     }
     return 0;
 }

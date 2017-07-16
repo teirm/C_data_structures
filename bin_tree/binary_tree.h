@@ -30,16 +30,19 @@ int delete_node(struct bin_node *root, struct bin_node *node,
 /*
  * Preorder traversal of tree.
  */
-int preorder_traversal(struct bin_node *root);
+int preorder_traversal(struct bin_node *root,
+                       void (*node_op)(struct bin_node *a));
 
 /*
  * Postorder traversal of tree.
  */
-int postorder_traversal(struct bin_node *root);
+int postorder_traversal(struct bin_node *root,
+                        void (*node_op)(struct bin_node *a));
 
 /*
  * Inorder traversal of tree.
  */
-int inorder_traversal(struct bin_node *root);
+int inorder_traversal(struct bin_node *root,
+                      void (*node_op)(struct bin_node *a));
 
 #endif

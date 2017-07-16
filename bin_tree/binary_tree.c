@@ -48,3 +48,63 @@ int create_node(
     }
     return 0;
 }
+
+/* 
+ * TODO: Delete node -- I think it is a 
+ * float down procedure.
+ */
+int delete_node(
+        struct bin_node         *root,
+        struct bin_node         *node,
+        int (*comp)(void *a, void *b))
+{
+    struct bin_node     *current_node;
+    struct bin_node     *parent_node;
+    
+    if (root == NULL) {
+        return 1;
+    }
+
+    return 0;
+}
+
+
+int preorder_traversal(
+        struct bin_node         *node,
+        void (*node_op)(struct bin_node *a))
+{
+    if (node == NULL) {
+        return 0;
+    }
+    node_op(node);
+    preorder_traversal(node->left_child, node_op);
+    preorder_traversal(node->right_child, node_op);
+    return 0;
+}  
+
+int postorder_traversal(
+        struct bin_node         *node,
+        void (*node_op)(struct bin_node *a))
+{
+    if (node == NULL) {
+        return 0;
+    }
+    postorder_traversal(node->left_child, node_op);
+    postorder_traversal(node->right_child, node_op);
+    node_op(node);
+    return 0;
+}
+
+int inorder_traversal(
+        struct bin_node         *node,
+        void (*node_op)(struct bin_node *a))
+{
+    if (node == NULL) {
+        return 0;
+    }
+    inorder_traversal(node->left_child, node_op);
+    node_op(node);
+    inorder_traversal(node->right_child, node_op);
+    return 0;
+}
+

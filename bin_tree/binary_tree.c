@@ -16,21 +16,23 @@
 
 #define DEBUG_INFO __FUNCTION__, __LINE__
 
+
 int create_node(
         struct bin_node         *root,
         struct bin_node         *new_node,
         int (*comp)(void *a, void *b))
 {
     int comp_result         = 0;
+    int rc                  = 0;
     comp_result = comp(root->value, new_node->value);
 
-    if (comp_result <= 0) {
+    if (comp_result < 0) {
         if (root->right_child == NULL) {
             root->right_child = new_node;
         } else {
-            create_node(root->right_child, new_node, comp);
+            rc = create_node(root->right_child, new_node, comp);
         }
-    } else {
+    } else if (comp_result > 0) {
 #if DEBUG
         printf("[%s:%d] Taking left_branch.\n",
                 __FUNCTION__, __LINE__);
@@ -38,33 +40,33 @@ int create_node(
         if (root->left_child == NULL) {
 #if DEBUG
         printf("[%s:%d] adding node %p to root %p\n",
-                __FUNCTION__, __LINE__,
+                DEBUG_INFO,
                 new_node, root);
 #endif 
             root->left_child = new_node;
         } else {
-            create_node(root->left_child, new_node, comp);
+            rc = create_node(root->left_child, new_node, comp);
         }
+    } else {
+#if DEBUG
+        printf("[%s:%d] Duplicate value found.\n",
+                DEBUG_INFO);
+#endif 
+        return DUPLICATE_ERROR;
     }
-    return 0;
+    return rc;
 }
 
 /* 
  * TODO: Delete node -- I think it is a 
  * float down procedure.
  */
-int delete_node(
-        struct bin_node         *root,
-        struct bin_node         *node,
-        int (*comp)(void *a, void *b))
+int delete_node()
 {
-    struct bin_node     *current_node;
-    struct bin_node     *parent_node;
-    
-    if (root == NULL) {
-        return 1;
-    }
-
+#if DEBUG
+    fprintf(stderr, "[%s:%d] ERROR: %s not implemented\n",
+            DEBUG_INFO, __FUNCTION__);
+#endif
     return 0;
 }
 

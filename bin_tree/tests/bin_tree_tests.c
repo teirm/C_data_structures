@@ -11,7 +11,7 @@
 #include "../binary_tree.h"
 
 #define MAX_VALUE 100
-#define MAX_SIZE  20
+#define MAX_SIZE 10 
 
 #define DEBUG 0
 
@@ -29,7 +29,8 @@ if (x == 1) {\
 #define NODE_TO_INT(x) *(int *)(x->value)
 
 /* Comparator function for ints */
-int comparator(
+int 
+comparator(
         void            *a,
         void            *b)
 {
@@ -40,6 +41,12 @@ int comparator(
                 DEBUG_INFO);
 #endif 
         return 1;
+    } else if (*(int *)a < *(int *)b){
+#if DEBUG
+        printf("[%s:%d] Returning -1\n",
+                DEBUG_INFO);
+#endif
+        return -1;
     } else {
 #if DEBUG
         printf("[%s:%d] Returning 0\n",
@@ -47,6 +54,31 @@ int comparator(
 #endif
         return 0;
     }
+
+}
+
+
+/* print out function for traversals */
+void
+print_node(
+    struct bin_node             *node)
+{
+#if DEBUG
+    printf("[%s:%d] Node %p contents:\n" \
+           "\t\tLeft Child:  %p\n" \
+           "\t\tRight Child: %p\n" \
+           "\t\tValue:       %d\n",
+                DEBUG_INFO, node, 
+                node->left_child,
+                node->right_child,
+                NODE_TO_INT(node));
+#endif
+    printf("[%s:%d] Node %d\n" \
+           "\t\tLeft Child: %d\n"\
+           "\t\tRight Child: %d\n",
+           DEBUG_INFO, NODE_TO_INT(node),
+           node->left_child ? NODE_TO_INT(node->left_child): -1,
+           node->right_child ? NODE_TO_INT(node->right_child): -1);
 
 }
 
@@ -114,7 +146,102 @@ int create_again_test(
     if (root->right_child == NULL) {
         return 1;
     }
+    
+    return 0;
+}
 
+/*
+ * Execute a preorder traversal. 
+ */
+int
+preorder_test_one(
+        struct bin_node         *root)
+{
+    int rc      = 0;
+    rc = preorder_traversal(root, print_node);
+    return rc;
+}
+
+/*
+ * Execute a postorder traversal.
+ */
+int
+postorder_test_one(
+        struct bin_node         *root)
+{
+    postorder_traversal(root, print_node);
+    return 0;
+}
+
+/*
+ * Execute an inorder traversal.
+ */
+int
+inorder_test_one(
+        struct bin_node         *root)
+{
+    inorder_traversal(root, print_node);
+    return 0;
+}
+
+int
+complete_tree_test(
+        struct bin_node         *root,
+        int                     *int_array,
+        int                     array_items)
+{
+    int i                       = 0;
+    int rc                      = 0;
+    struct bin_node *new_node   = NULL;
+     
+
+    
+    for (i = 0; i < array_items; ++i) { 
+        new_node = calloc(1, sizeof *new_node);
+        new_node->left_child = NULL;
+        new_node->right_child = NULL;
+        new_node->value = int_array + i;
+        
+        rc = create_node(root, new_node,
+                         comparator);
+#if DEBUG
+        printf("[%s:%d] Create node return code: %d\n",
+                DEBUG_INFO, rc);
+#endif
+        if (rc) {
+            if (rc == DUPLICATE_ERROR) {
+#if DEBUG
+                printf("[%s:%d] Deleting duplicate node with value %d\n",
+                DEBUG_INFO, int_array[i]);
+#endif
+            free(new_node);
+            } else {
+#if DEBUG
+                printf("[%s:%d] Non-duplicate failure %d\n",
+                        DEBUG_INFO, int_array[i]);
+#endif
+                return rc;
+            }
+        }
+    }
+
+    return 0;
+}
+
+/* Clean up function for clean up test */
+void
+free_node(
+        struct bin_node         *node)
+{
+    free(node);
+}
+
+
+int
+clean_up_test(
+        struct bin_node         *root)
+{
+    postorder_traversal(root, free_node);
     return 0;
 }
 
@@ -150,4 +277,20 @@ int main()
     rc = create_again_test(root, int_array+2);
     VERIFY_TEST(rc, "create_again_test");
 
+    rc = complete_tree_test(root, int_array+3, MAX_SIZE-3);
+    VERIFY_TEST(rc, "complete_tree_test");
+
+    rc = preorder_test_one(root);
+    VERIFY_TEST(rc, "preorder_test_one");
+    
+    rc = postorder_test_one(root);
+    VERIFY_TEST(rc, "post_test_one");
+    
+    rc = inorder_test_one(root);
+    VERIFY_TEST(rc, "inorder_test_one");
+
+    rc = clean_up_test(root);
+    VERIFY_TEST(rc, "clean_up_test");
+    
+    return 0;
 }

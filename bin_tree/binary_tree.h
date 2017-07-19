@@ -7,6 +7,9 @@
 #ifndef BINARY_TREE_GUARD
 #define BINARY_TREE_GUARD
 
+/* Error specific to duplicates */
+#define DUPLICATE_ERROR 2
+
 struct bin_node {
     struct bin_node     *left_child;
     struct bin_node     *right_child;
@@ -21,11 +24,13 @@ int create_node(struct bin_node *root, struct bin_node *new_node,
                 int (*comp)(void *a, void *b));
 
 /*
- * Delete a node from the tree. Left child, if available
- * becomes parent.  Otherwise right child.
+ * Skipping deletion for the time being.  Can't remember
+ * how to do it.
  */
-int delete_node(struct bin_node *root, struct bin_node *node,
+
+/* int delete_node(struct bin_node *root, struct bin_node *node,
                 int (*comp)(void *a, void *b));
+*/
 
 /*
  * Preorder traversal of tree.

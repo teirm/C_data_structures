@@ -1,34 +1,51 @@
 /* Author: Cyrus Ramavarapu
-Date: 10 November 2015
-Purpose: Hash table implementation using
-array and linked list.
-NOTES: As of 10 Nov 2015, this is the 
-remenants from a CS1550 Project 3 idea
-*/
+ * Date: 10 November 2015
+ * Purpose: Hash table implementation using
+ *          open hashing. 
+ * NOTES: As of 10 Nov 2015, this is the 
+ *        remenants from a CS1550 Project 3 idea
+ */
 
 /* HASH TABLE FUNCTIONS */
-void hash_add(unsigned int key, int value, struct hash_node **table)
+
+#include <string.h>
+
+#include "hash_table.h"
+
+#define HASH_SIZE 25
+
+void 
+hash_add(
+        char                        *key,
+        void                        *value,
+        struct hash_node            **table)
 {
 	int hash;
-	struct hash_node *new_node;	
+	struct hash_node *new_node      = NULL;	
 
 	hash = hash_function(key); 
 	
 	if (table[hash] == NULL) {
-		table[hash] = malloc(sizeof *table[hash]);
-		table[hash]->next_use = value;
+		table[hash] = calloc(1, sizeof *table[hash]);
+	    table[hash]->key = key;	
+        table[hash]->value = value;
 		table[hash]->next = NULL;	
 	} else {
-		new_node = malloc(sizeof *new_node);
-		new_node->next_use = value;
+		new_node = calloc(1, sizeof *new_node);
+        new_node->key = key;
+		new_node->value = value;
 		new_node->next = NULL;
 		hash_append(hash, new_node, table);
 	}
 }
 
-void hash_append(int hash, struct hash_node *new_node, struct hash_node **table)
+void 
+hash_append(
+        int                         hash,
+        struct hash_node            *new_node, 
+        struct hash_node            **table)
 {	
-	struct hash_node *current_node;
+	struct hash_node *current_node = NULL;
 
 	current_node = table[hash];
 
@@ -39,7 +56,10 @@ void hash_append(int hash, struct hash_node *new_node, struct hash_node **table)
 	current_node->next = new_node;
 }
 
-struct hash_node *hash_delete(int hash, struct hash_node **table)
+struct hash_node *
+hash_delete(
+        int                         hash,
+        struct hash_node            **table)
 {
 	struct hash_node *delete_node;
 
@@ -54,36 +74,45 @@ struct hash_node *hash_delete(int hash, struct hash_node **table)
 	return delete_node;
 }
 
-int hash_function(unsigned int key)
+int 
+hash_function(
+        char                    *key)
 {
-	return key % HASH_SIZE;
+    int char_sum                = 0;
+    char *current_letter        = key; 
+    
+    while (current_letter++) {
+        char_sum += *current_letter;
+    }
+
+	return char_sum  % HASH_SIZE;
 }
 
-int hash_search(unsigned int key, int lookup_value, struct hash_node **table)
+void * 
+hash_search(
+        char                        *key,
+        struct hash_node            **table)
 {
 	int hash;
-	int found;
-	int current_value;
-	struct hash_node *current_node;
+	void *current_value            = NULL;
+	struct hash_node *current_node = NULL;
 
 	hash = hash_function(key);
 	current_node = table[hash];
-	found = 0;
 
-	while (found == 0 && current_node->next != NULL) {
-		current_value = current_node->next_use;
-		/* Look for first instance of a value greater than the current lookup */
-		/* This will be the next used time of a page frame */
-		if (current_value > lookup_value) {
-			found = 1;
-			lookup_value = current_value;
+	while (current_node->next != NULL) {
+		if (strcmp(current_node->key, key) == 0) {
+		    current_value = current_node->value;
+            break;
 		}
 	}
 	
-	return lookup_value;
+	return current_value;
 }
 
-void init_table(struct hash_node **table)
+void 
+init_table(
+        struct hash_node            **table)
 {
 	int i;
 
@@ -92,10 +121,12 @@ void init_table(struct hash_node **table)
 	}
 }
 
-void free_hash(struct hash_node **table)
+void
+free_hash(
+        struct hash_node            **table)
 {
 	int i;
-	struct hash_node *node_to_free;
+	struct hash_node *node_to_free = NULL;
 
 	for (i = 0; i < HASH_SIZE; i++) {
 		while (table[i] != NULL) {

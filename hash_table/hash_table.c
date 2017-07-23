@@ -12,32 +12,62 @@
 
 #include "hash_table.h"
 
-#define HASH_SIZE 25
+#define DEBUG 0
 
-void 
+#if DEBUG
+#include <stdio.h>
+#include <ds/debug.h>
+#endif
+
+
+int
 hash_add(
         char                        *key,
         void                        *value,
-        struct hash_node            **table)
+        struct hash_table           *h_table)
 {
 	int hash;
 	struct hash_node *new_node      = NULL;	
 
-	hash = hash_function(key); 
+	hash = hash_function(key, h_table->size); 
 	
-	if (table[hash] == NULL) {
-		table[hash] = calloc(1, sizeof *table[hash]);
-	    table[hash]->key = key;	
-        table[hash]->value = value;
-		table[hash]->next = NULL;	
+	if (h_table->table[hash] == NULL) {
+		h_table->table[hash] = calloc(1, sizeof *h_table->table[hash]);
+	    h_table->table[hash]->key = key;	
+        h_table->table[hash]->value = value;
+		h_table->table[hash]->next = NULL;
+        
+        /* A new entry into the hash table was added 
+         * starting a new chain.
+         */
+        h_table->entries++;
 	} else {
 		new_node = calloc(1, sizeof *new_node);
         new_node->key = key;
 		new_node->value = value;
 		new_node->next = NULL;
-		hash_append(hash, new_node, table);
+		hash_append(hash, new_node, h_table->table);
 	}
+    return 0;
 }
+
+
+int 
+hash_function(
+       char                       *key,
+       unsigned int               size)
+{
+    int char_sum                = 0;
+    char *key_ptr               = key;
+    char curr_char              = 0;
+
+    while ((curr_char = *key_ptr++)) {
+        char_sum += curr_char;
+    }
+
+	return char_sum % size;
+}
+
 
 void 
 hash_append(
@@ -55,6 +85,7 @@ hash_append(
 	
 	current_node->next = new_node;
 }
+
 
 struct hash_node *
 hash_delete(
@@ -74,64 +105,61 @@ hash_delete(
 	return delete_node;
 }
 
-int 
-hash_function(
-       char                       *key)
-{
-    int char_sum                = 0;
-    char *key_ptr               = key;
-    char curr_char              = 0;
-
-    while ((curr_char = *key_ptr++)) {
-        char_sum += curr_char;
-    }
-
-	return char_sum % HASH_SIZE;
-}
 
 void * 
 hash_search(
         char                        *key,
-        struct hash_node            **table)
+        struct hash_table           *h_table)
 {
 	int hash;
 	void *current_value            = NULL;
 	struct hash_node *current_node = NULL;
 
-	hash = hash_function(key);
-	current_node = table[hash];
+	hash = hash_function(key, h_table->size);
+	current_node = h_table->table[hash];
 
-	while (current_node->next != NULL) {
+#if DEBUG
+    printf("[%s:%d] The current node is %p\n",
+            DEBUG_INFO, current_node);
+
+    if (current_node) {
+        printf("[%s:%d] The value at the node is %d\n",
+                DEBUG_INFO, *(int *)(current_node->value));
+    }
+
+#endif
+
+
+	while (current_node != NULL) {
 		if (strcmp(current_node->key, key) == 0) {
 		    current_value = current_node->value;
             break;
 		}
+        current_node = current_node->next;
 	}
 	
 	return current_value;
 }
 
-void 
-init_table(
-        struct hash_node            **table)
-{
-	int i;
-
-	for (i = 0; i < HASH_SIZE; i++) {
-		table[i] = NULL;
-	}
-}
 
 void
 free_hash(
-        struct hash_node            **table)
+        struct hash_table            *h_table,
+        void (*free_value)(void *value))
 {
-	int i;
+	unsigned int i;
 	struct hash_node *node_to_free = NULL;
 
-	for (i = 0; i < HASH_SIZE; i++) {
-		while (table[i] != NULL) {
-			node_to_free = hash_delete(i, table);
+	for (i = 0; i < h_table->size; i++) {
+		while (h_table->table[i] != NULL) {
+			node_to_free = hash_delete(i, h_table->table);
+
+            /* The caller is responsible for freeing the 
+             * contents of the node.
+             */
+            if (free_value) {
+                free_value(node_to_free->value);
+            }
 			free(node_to_free);
 		}
 	}

@@ -76,16 +76,17 @@ hash_delete(
 
 int 
 hash_function(
-        char                    *key)
+       char                       *key)
 {
     int char_sum                = 0;
-    char *current_letter        = key; 
-    
-    while (current_letter++) {
-        char_sum += *current_letter;
+    char *key_ptr               = key;
+    char curr_char              = 0;
+
+    while ((curr_char = *key_ptr++)) {
+        char_sum += curr_char;
     }
 
-	return char_sum  % HASH_SIZE;
+	return char_sum % HASH_SIZE;
 }
 
 void * 

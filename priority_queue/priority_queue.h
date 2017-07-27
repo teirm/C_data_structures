@@ -21,6 +21,8 @@ struct priority_node {
 
 struct priority_queue {
     struct priority_node **root;             /* Pointer to the root of the tree */
+    int last_node;                           /* Value of the last node */
+    int size;                                /* Max size of priority queue */
 };
 
 /* Delete and return the node with the highest priority */
@@ -33,5 +35,5 @@ int insert(struct priority_queue *pq, struct priority_node *pn);
 int swap(struct priority_node *a, struct priority_node *b);
 
 /* Delete all nodes from the tree */
-int delete_tree(struct priority_queue *pq);
+int delete_tree(struct priority_queue *pq, void (*free_value)(void *value));
 #endif 

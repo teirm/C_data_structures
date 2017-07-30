@@ -12,48 +12,6 @@
 
 #include "priority_queue.h"
 
-struct priority_node *
-delete_min(
-        struct priority_queue       *pq)
-{
-    int curr_position                       = 0; 
-    int last_position                       = 0;                         
-    struct priority_node *return_node       = NULL;
-    struct priority_node *swap_node         = NULL; 
-
-    if (pq->root[0] == NULL) {
-        /* Attempting to delete out of an empty tree */ 
-        return NULL;
-    }
-
-    return_node = pq->root[0];
-    last_position = pq->last_node - 1;
-   
-    pq->root[0] = pq->root[last_position];
-    pq->root[last_position] = NULL;
-    pq->last_node--;
-
-    /* Float new root value down */
-    /* NOTE: This feels buggy especially on the edge cases:
-     *       float down to original position?
-     *       float past end of array?
-     */
-    while (curr_position <= pq->last_node) {
-        if (pq->root[curr_position]->priority > pq->root[2*curr_position+1]->priority) {
-            swap(pq->root[curr_position], pq->root[2*curr_position+1]);
-            curr_position = 2*curr_position + 1;
-        } else if (pq->root[curr_position]->priority > pq->root[2*curr_position+2]->priority) {
-            swap(pq->root[curr_position], pq->root[2*curr_position+2]);
-            curr_position = 2*curr_position + 2;
-        } else {
-            /* found heap property location */
-            break;
-        }
-    }
-
-    return return_node;
-}
-
 /* Swap the priority and value of a and b */ 
 int
 swap(
@@ -72,29 +30,107 @@ swap(
     b->priority = temp_priority;
     b->value = temp_value;
 
-    return 1;
+    return 0;
 }
+
+struct priority_node *
+delete_min(
+        struct priority_queue       *pq) {
+    int curr_pos                            = 0; 
+    int last_pos                            = 0;
+
+    struct priority_node *return_node       = NULL;
+    struct priority_node *swap_node         = NULL; 
+    
+    struct priority_node **queue            = pq->root;
+
+
+    if (pq->root[0] == NULL) {
+        /* Attempting to delete out of an empty tree */ 
+        return NULL;
+    }
+
+    return_node = queue[0];
+    last_pos = pq->last_node - 1;
+   
+    queue[0] = queue[last_pos];
+    queue[last_pos] = NULL;
+    pq->last_node--;
+
+    /* Float new root value down */
+    /* NOTE: This feels buggy especially on the edge cases:
+     *       float down to original position?
+     *       float past end of array?
+     */
+    while (curr_pos < pq->last_node) {
+        if (queue[curr_pos]->priority > queue[2*curr_pos+1]->priority) {
+            swap(queue[curr_pos], queue[2*curr_pos+1]);
+            curr_pos = 2*curr_pos + 1;
+        } else if (queue[curr_pos]->priority > queue[2*curr_pos+2]->priority) {
+            swap(queue[curr_pos], queue[2*curr_pos+2]);
+            curr_pos = 2*curr_pos + 2;
+        } else {
+            /* found heap property location */
+            break;
+        }
+    }
+
+    return return_node;
+}
+
+
+int
+resize(
+        struct priority_queue       *pq)
+{
+    int i; 
+    int new_size                    = 2 * pq->size;
+    struct priority_node **new_root = NULL;
+
+    new_root = calloc(new_size, sizeof *new_root);
+   
+    if (new_root == NULL) {
+        /* Failed to allocate a new root */ 
+        return 1;
+    }
+
+    for (i = 0; i < pq->size; ++i) {
+        new_root[i] = pq->root[i];
+    }
+    
+    free(pq->root);
+    pq->root = new_root;
+    
+    return 0;
+}
+
 
 int
 insert(
         struct priority_queue       *pq,
         struct priority_node        *pn)
 {
-    int curr_position                = 0; 
+    int curr_position                = 0;
+    int rc                           = 0;
+
+    struct priority_node **queue     = pq->root;
 
     if (pq->last_node + 1 == pq->size) {
-        /* This is where resizing the pq would be nice */
-        return 1;
+        rc = resize_queue(pq);
+        if (rc) {
+            /* The resize operation failed */ 
+            return 1;
+        }
     }
 
     curr_position = pq->last_node; 
-    pq->root[curr_position] = pn;
+    queue[curr_position] = pn;
     pq->last_node++; 
 
     /* Float up the new node */
     while (curr_position > 0) {
-        if (pq->root[curr_position / 2]->priority > pq->root[curr_position]->priority) {
-            swap(pq->root[curr_position / 2], pq->root[curr_position]); 
+        if (queue[curr_position / 2]->priority > queue[curr_position]->priority) {
+            swap(queue[curr_position / 2], queue[curr_position]); 
             curr_position /= 2; 
         } else {
             /* Found position satisfying heap property */

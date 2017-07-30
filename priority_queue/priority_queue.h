@@ -36,4 +36,9 @@ int swap(struct priority_node *a, struct priority_node *b);
 
 /* Delete all nodes from the tree */
 int delete_tree(struct priority_queue *pq, void (*free_value)(void *value));
+
+/* Resize queue */
+int resize_queue(struct priority_queue *pq);
+
+
 #endif 

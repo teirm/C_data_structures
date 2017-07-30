@@ -8,9 +8,15 @@
 
 
 #include <stdlib.h>
-#include <ds/debug.h>
 
 #include "priority_queue.h"
+
+#define DEBUG 1
+
+#if DEBUG
+#include <stdio.h>
+#include <ds/debug.h>
+#endif
 
 /* Swap the priority and value of a and b */ 
 int
@@ -40,12 +46,14 @@ delete_min(
     int last_pos                            = 0;
 
     struct priority_node *return_node       = NULL;
-    struct priority_node *swap_node         = NULL; 
-    
     struct priority_node **queue            = pq->root;
 
 
     if (pq->root[0] == NULL) {
+#if DEBUG
+        printf("[%s:%d] pq->root[0] == %p\n",
+                DEBUG_INFO, pq->root[0]);
+#endif
         /* Attempting to delete out of an empty tree */ 
         return NULL;
     }
@@ -116,7 +124,7 @@ insert(
     struct priority_node **queue     = pq->root;
 
     if (pq->last_node + 1 == pq->size) {
-        rc = resize_queue(pq);
+        rc = resize(pq);
         if (rc) {
             /* The resize operation failed */ 
             return 1;

@@ -14,7 +14,6 @@
 
 struct priority_node {
     int priority;                           /* Priority of the node -- int for convenience */
-    int index;                              /* Index of the node */ 
     void *value;                            /* Value held by the node */ 
     
 };

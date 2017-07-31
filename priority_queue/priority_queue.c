@@ -16,6 +16,7 @@
 #if DEBUG
 #include <stdio.h>
 #include <ds/debug.h>
+#define VOID_TO_INT(x) *(int *)(x)
 #endif
 
 /* Swap the priority and value of a and b */ 
@@ -74,11 +75,45 @@ delete_min(
         if (queue[curr_pos]->priority > queue[2*curr_pos+1]->priority) {
             swap(queue[curr_pos], queue[2*curr_pos+1]);
             curr_pos = 2*curr_pos + 1;
+#if DEBUG
+        printf("[%s:%d] Swapping A: %p and B: %p\n" \
+               "\tA->priority: %d A->value: %d A pos: %d"\
+               "\tB->priority: %d B->value: %d B pos: %d",
+               DEBUG_INFO, queue[2*curr_pos+1], queue[curr_pos],
+               queue[2*curr_pos+1]->priority, 
+               VOID_TO_INT(queue[2*curr_pos+1]->value),
+               2*curr_pos+1,
+               queue[curr_pos]->priority,
+               VOID_TO_INT(queue[curr_pos]->value),
+               curr_pos);
+
+#endif
         } else if (queue[curr_pos]->priority > queue[2*curr_pos+2]->priority) {
             swap(queue[curr_pos], queue[2*curr_pos+2]);
             curr_pos = 2*curr_pos + 2;
+#if DEBUG
+            printf("[%s:%d] Swapping A: %p and B: %p\n" \
+                   "\tA->priority: %d A->value: %d A pos: %d\n"\
+                   "\tB->priority: %d B->value: %d B pos: %d\n",
+                   DEBUG_INFO, queue[2*curr_pos+2], queue[curr_pos],
+                   queue[2*curr_pos+2]->priority, 
+                   VOID_TO_INT(queue[2*curr_pos+2]->value),
+                   2*curr_pos+2,
+                   queue[curr_pos]->priority,
+                   VOID_TO_INT(queue[curr_pos]->value),
+                   curr_pos);
+
+#endif
         } else {
             /* found heap property location */
+#if DEBUG
+            printf("[%s:%d] Position Found at: %d\n" \
+                    "\tPriority Node: %p Priority: %d Value: %d\n",
+                    DEBUG_INFO, curr_pos, queue[curr_pos],
+                    queue[curr_pos]->priority,
+                    VOID_TO_INT(queue[curr_pos]->value));
+
+#endif 
             break;
         }
     }
@@ -139,9 +174,29 @@ insert(
     while (curr_position > 0) {
         if (queue[curr_position / 2]->priority > queue[curr_position]->priority) {
             swap(queue[curr_position / 2], queue[curr_position]); 
-            curr_position /= 2; 
+            curr_position /= 2;
+#if DEBUG
+        printf("[%s:%d] Swapping A: %p and B: %p\n" \
+               "\tA->priority: %d A->value: %d A pos: %d\n"\
+               "\tB->priority: %d B->value: %d B pos: %d\n",
+               DEBUG_INFO, queue[curr_position/2], queue[curr_position],
+               queue[curr_position/2]->priority, 
+               VOID_TO_INT(queue[curr_position/2]->value),
+               curr_position/2,
+               queue[curr_position]->priority,
+               VOID_TO_INT(queue[curr_position]->value),
+               curr_position);
+#endif
         } else {
             /* Found position satisfying heap property */
+#if DEBUG
+            printf("[%s:%d] Position Found at: %d\n" \
+                    "\tPriority Node: %p Priority: %d Value: %d\n"\
+                    "\tPosition: %d\n",
+                    DEBUG_INFO, curr_position, pn,
+                    pn->priority, VOID_TO_INT(pn->value),
+                    curr_position);
+#endif
             break;
         }
     }

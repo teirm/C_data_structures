@@ -195,10 +195,10 @@ int main()
     pq = calloc(1, sizeof *pq);
     pq->size = INITIAL_QUEUE;
     pq->last_node = 0;
-    pq->root = calloc(pq->size, sizeof *(pq->root));
+    pq->root = calloc(INITIAL_QUEUE, sizeof *(pq->root));
 
     /* Create test nodes */
-    test_list = calloc(INITIAL_QUEUE, sizeof *test_list);
+    test_list = calloc(2*INITIAL_QUEUE, sizeof *test_list);
 
     for (i = 0; i < 2 * INITIAL_QUEUE; ++i) {
         test_values[i] = rand() % MAX_VALUE;
@@ -212,7 +212,7 @@ int main()
     }
     
 #if DEBUG
-    for (i = 0; i < INITIAL_QUEUE; ++i) {
+    for (i = 0; i < INITIAL_QUEUE; i++) {
         printf("[%s:%d] priority_node:\n\tpriority: %d\n\tvalue: %d\n",
                 DEBUG_INFO, test_list[i]->priority, 
                 VOID_TO_INT(test_list[i]->value));

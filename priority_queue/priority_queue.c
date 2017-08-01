@@ -153,40 +153,64 @@ insert(
         struct priority_queue       *pq,
         struct priority_node        *pn)
 {
-    int curr_position                = 0;
-    int rc                           = 0;
+    int curr_position                   = 0;
+    int offset                          = 0;
+    int rc                              = 0;
 
-    struct priority_node **queue     = pq->root;
+    struct priority_node **queue        = pq->root;
 
-    if (pq->last_node + 1 == pq->size) {
+    if (pq->last_node == pq->size) {
+#if DEBUG
+        printf("[%s:%d] Resizing queue\n",
+                DEBUG_INFO);
+#endif
         rc = resize(pq);
+
         if (rc) {
             /* The resize operation failed */ 
+            fprintf(stderr, "[%s:%d] Queue Resize failed\n",
+                    DEBUG_INFO);
             return 1;
         }
     }
-
     curr_position = pq->last_node; 
     queue[curr_position] = pn;
+#if DEBUG 
+    printf("[%s:%d] Value in queue[%d]: %p\n",
+            DEBUG_INFO, curr_position, queue[curr_position]);
+#endif
+    
     pq->last_node++; 
+   
+#if DEBUG
+    printf("[%s:%d] curr_position: %d\npq->last_node: %d\n",
+            DEBUG_INFO, curr_position, pq->last_node);
+#endif
+    
 
     /* Float up the new node */
     while (curr_position > 0) {
-        if (queue[curr_position / 2]->priority > queue[curr_position]->priority) {
-            swap(queue[curr_position / 2], queue[curr_position]); 
-            curr_position /= 2;
+        /* Need to apply an offset to even so that the 
+         * indexing works correctly.
+         */
+        offset = curr_position % 2 == 0 ? 1: 0;
+
+        if (queue[curr_position / 2 - offset]->priority > queue[curr_position]->priority) {
+            swap(queue[curr_position / 2 - offset], queue[curr_position]); 
 #if DEBUG
         printf("[%s:%d] Swapping A: %p and B: %p\n" \
                "\tA->priority: %d A->value: %d A pos: %d\n"\
                "\tB->priority: %d B->value: %d B pos: %d\n",
-               DEBUG_INFO, queue[curr_position/2], queue[curr_position],
-               queue[curr_position/2]->priority, 
-               VOID_TO_INT(queue[curr_position/2]->value),
-               curr_position/2,
+               DEBUG_INFO, queue[curr_position/2-offset], queue[curr_position],
+               queue[curr_position/2-offset]->priority, 
+               VOID_TO_INT(queue[curr_position/2-offset]->value),
+               curr_position/2-offset,
                queue[curr_position]->priority,
                VOID_TO_INT(queue[curr_position]->value),
                curr_position);
 #endif
+            curr_position /= 2;
+            curr_position -= offset;
         } else {
             /* Found position satisfying heap property */
 #if DEBUG
@@ -196,11 +220,12 @@ insert(
                     DEBUG_INFO, curr_position, pn,
                     pn->priority, VOID_TO_INT(pn->value),
                     curr_position);
+            printf("[%s:%d] Value in queue[%d]: %p\n",
+                    DEBUG_INFO, curr_position, queue[curr_position]);
 #endif
             break;
         }
     }
-    
     return 0;
 }
 

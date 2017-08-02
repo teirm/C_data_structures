@@ -176,6 +176,41 @@ test_full_insert(
 }
 
 
+int
+test_resize_insert(
+        struct priority_queue           *pq,
+        struct priority_node            *pn,
+        int                             list_size)
+{
+    int rc                              = 0;
+    rc = insert(pq,pn);
+
+    if (rc) {
+#if DEBUG
+        printf("[%s:%d] Failed to insert node: %p\n" \
+                "\tPriority: %d\n"\
+                "\tValue: %d\n",
+                DEBUG_INFO, pn,
+                pn->priority,
+                VOID_TO_INT(pn->value));
+#endif
+        return 1; 
+    }
+    
+    if (pq->last_node != list_size) {
+#if DEBUG
+        printf("[%s:%d] last_node: %d\n" \
+               "list_size: %d\n",
+                DEBUG_INFO, pq->last_node,
+                list_size);
+#endif
+        return 1;
+    }
+
+    
+    return 0;
+}
+
 /* Main entry point to the test suite */
 int main()
 {
@@ -204,7 +239,7 @@ int main()
         test_values[i] = rand() % MAX_VALUE;
     }
 
-    for (i = 0; i < INITIAL_QUEUE; ++i) {
+    for (i = 0; i < 2*INITIAL_QUEUE; ++i) {
         pn = calloc(1, sizeof *pn);
         pn->priority = rand() % MAX_PRIORITY;
         pn->value = test_values + i;
@@ -230,6 +265,9 @@ int main()
 
     rc = test_full_insert(pq, test_list, INITIAL_QUEUE);
     VERIFY_TEST(rc, "test_full_insert");
+
+    rc = test_resize_insert(pq, test_list[INITIAL_QUEUE], INITIAL_QUEUE+1);
+    VERIFY_TEST(rc, "test_resize_insert");
 
 
     return 0;

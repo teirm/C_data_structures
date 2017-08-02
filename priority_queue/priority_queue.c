@@ -127,10 +127,9 @@ resize(
         struct priority_queue       *pq)
 {
     int i; 
-    int new_size                    = 2 * pq->size;
     struct priority_node **new_root = NULL;
 
-    new_root = calloc(new_size, sizeof *new_root);
+    new_root = calloc(2*pq->size, sizeof *new_root);
    
     if (new_root == NULL) {
         /* Failed to allocate a new root */ 
@@ -139,11 +138,19 @@ resize(
 
     for (i = 0; i < pq->size; ++i) {
         new_root[i] = pq->root[i];
+#if DEBUG
+        printf("[%s:%d] new_root[%d]: %p\n"\
+               "\tpq->root[%d]: %p\n",
+               DEBUG_INFO, i, new_root[i],
+               i, pq->root[i]);
+#endif
     }
     
     free(pq->root);
     pq->root = new_root;
-    
+    pq->size = 2*pq->size;
+
+
     return 0;
 }
 
@@ -172,12 +179,17 @@ insert(
                     DEBUG_INFO);
             return 1;
         }
+
+        /* Need to reassign the root on a resize */
+        queue = pq->root;
     }
+
     curr_position = pq->last_node; 
-    queue[curr_position] = pn;
+    pq->root[curr_position] = pn;
+
 #if DEBUG 
-    printf("[%s:%d] Value in queue[%d]: %p\n",
-            DEBUG_INFO, curr_position, queue[curr_position]);
+    printf("[%s:%d] Inserted: %p Value in queue[%d]: %p\n",
+            DEBUG_INFO, pn, curr_position, pq->root[curr_position]);
 #endif
     
     pq->last_node++; 

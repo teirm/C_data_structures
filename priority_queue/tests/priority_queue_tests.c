@@ -211,6 +211,40 @@ test_resize_insert(
     return 0;
 }
 
+int
+test_delete_min(
+        struct priority_queue           *pq)
+{
+    struct priority_node *returned_min  = NULL; 
+    struct priority_node *expected_min  = NULL;
+
+    expected_min = pq->root[0];
+
+    returned_min = delete_min(pq);
+
+    if (returned_min == NULL) {
+        return 1;
+    }
+
+    if (expected_min == NULL) {
+        return 1;
+    }
+
+    if (returned_min->priority != expected_min->priority) {
+        return 1;
+    }
+
+    if (VOID_TO_INT(returned_min->value) != 
+            VOID_TO_INT(expected_min->value)) {
+        return 1;
+    }
+
+    return 0;    
+    
+}
+
+
+
 /* Main entry point to the test suite */
 int main()
 {
@@ -233,13 +267,13 @@ int main()
     pq->root = calloc(INITIAL_QUEUE, sizeof *(pq->root));
 
     /* Create test nodes */
-    test_list = calloc(2*INITIAL_QUEUE, sizeof *test_list);
+    test_list = calloc(INITIAL_QUEUE+1, sizeof *test_list);
 
-    for (i = 0; i < 2 * INITIAL_QUEUE; ++i) {
+    for (i = 0; i < INITIAL_QUEUE+1; ++i) {
         test_values[i] = rand() % MAX_VALUE;
     }
 
-    for (i = 0; i < 2*INITIAL_QUEUE; ++i) {
+    for (i = 0; i < INITIAL_QUEUE+1; ++i) {
         pn = calloc(1, sizeof *pn);
         pn->priority = rand() % MAX_PRIORITY;
         pn->value = test_values + i;
@@ -269,6 +303,8 @@ int main()
     rc = test_resize_insert(pq, test_list[INITIAL_QUEUE], INITIAL_QUEUE+1);
     VERIFY_TEST(rc, "test_resize_insert");
 
+    rc = test_delete_min(pq);
+    VERIFY_TEST(rc, "test_delete_min"); 
 
     return 0;
 }

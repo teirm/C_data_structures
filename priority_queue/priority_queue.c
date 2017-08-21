@@ -10,14 +10,12 @@
 #include <stdlib.h>
 
 #include "priority_queue.h"
-
-#define DEBUG 1
-
-#if DEBUG
 #include <stdio.h>
 #include <ds/debug.h>
+
+#define DEBUG 1
 #define VOID_TO_INT(x) *(int *)(x)
-#endif
+
 
 /* Swap the priority and value of a and b */ 
 int
@@ -67,18 +65,14 @@ delete_min(
     pq->last_node--;
 
     /* Float new root value down */
-    /* NOTE: This feels buggy especially on the edge cases:
-     *       float down to original position?
-     *       float past end of array?
-     */
     while (curr_pos < pq->last_node) {
-        if (queue[curr_pos]->priority > queue[2*curr_pos+1]->priority) {
+        if (queue[2*curr_pos+1] && 
+            queue[curr_pos]->priority > queue[2*curr_pos+1]->priority) {
             swap(queue[curr_pos], queue[2*curr_pos+1]);
-            curr_pos = 2*curr_pos + 1;
 #if DEBUG
         printf("[%s:%d] Swapping A: %p and B: %p\n" \
                "\tA->priority: %d A->value: %d A pos: %d"\
-               "\tB->priority: %d B->value: %d B pos: %d",
+               "\tB->priority: %d B->value: %d B pos: %d\n",
                DEBUG_INFO, queue[2*curr_pos+1], queue[curr_pos],
                queue[2*curr_pos+1]->priority, 
                VOID_TO_INT(queue[2*curr_pos+1]->value),
@@ -86,12 +80,14 @@ delete_min(
                queue[curr_pos]->priority,
                VOID_TO_INT(queue[curr_pos]->value),
                curr_pos);
-
-#endif
-        } else if (queue[curr_pos]->priority > queue[2*curr_pos+2]->priority) {
+#endif /* DEBUG */
+            curr_pos = 2*curr_pos + 1;
+        } else if (queue[2*curr_pos+2] != NULL && 
+                   queue[curr_pos]->priority > queue[2*curr_pos+2]->priority) {
             swap(queue[curr_pos], queue[2*curr_pos+2]);
-            curr_pos = 2*curr_pos + 2;
 #if DEBUG
+            printf("[%s:%d] Curr Pos: %d\n",
+                    DEBUG_INFO, curr_pos);
             printf("[%s:%d] Swapping A: %p and B: %p\n" \
                    "\tA->priority: %d A->value: %d A pos: %d\n"\
                    "\tB->priority: %d B->value: %d B pos: %d\n",
@@ -102,8 +98,8 @@ delete_min(
                    queue[curr_pos]->priority,
                    VOID_TO_INT(queue[curr_pos]->value),
                    curr_pos);
-
-#endif
+#endif /* DEBUG */
+            curr_pos = 2*curr_pos + 2;
         } else {
             /* found heap property location */
 #if DEBUG
@@ -112,8 +108,7 @@ delete_min(
                     DEBUG_INFO, curr_pos, queue[curr_pos],
                     queue[curr_pos]->priority,
                     VOID_TO_INT(queue[curr_pos]->value));
-
-#endif 
+#endif /* DEBUG */
             break;
         }
     }

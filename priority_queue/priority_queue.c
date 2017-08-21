@@ -86,8 +86,6 @@ delete_min(
                    queue[curr_pos]->priority > queue[2*curr_pos+2]->priority) {
             swap(queue[curr_pos], queue[2*curr_pos+2]);
 #if DEBUG
-            printf("[%s:%d] Curr Pos: %d\n",
-                    DEBUG_INFO, curr_pos);
             printf("[%s:%d] Swapping A: %p and B: %p\n" \
                    "\tA->priority: %d A->value: %d A pos: %d\n"\
                    "\tB->priority: %d B->value: %d B pos: %d\n",
@@ -144,7 +142,6 @@ resize(
     free(pq->root);
     pq->root = new_root;
     pq->size = 2*pq->size;
-
 
     return 0;
 }
@@ -227,8 +224,6 @@ insert(
                     DEBUG_INFO, curr_position, pn,
                     pn->priority, VOID_TO_INT(pn->value),
                     curr_position);
-            printf("[%s:%d] Value in queue[%d]: %p\n",
-                    DEBUG_INFO, curr_position, queue[curr_position]);
 #endif
             break;
         }

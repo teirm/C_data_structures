@@ -182,6 +182,7 @@ test_resize_insert(
         struct priority_node            *pn,
         int                             list_size)
 {
+    int i;
     int rc                              = 0;
     rc = insert(pq,pn);
 
@@ -207,6 +208,13 @@ test_resize_insert(
         return 1;
     }
 
+#if DEBUG
+    for (i = 0; i < pq->last_node; ++i) {
+        printf("[%s:%d] priority_node %d:\n\tpriority: %d\n\tvalue: %d\n",
+                DEBUG_INFO, i, pq->root[i]->priority, 
+                VOID_TO_INT(pq->root[i]->value));
+    }
+#endif
     
     return 0;
 }
@@ -214,7 +222,7 @@ test_resize_insert(
 int
 test_delete_min(
         struct priority_queue           *pq)
-{
+{   
     struct priority_node *returned_min  = NULL; 
     struct priority_node *expected_min  = NULL;
 
@@ -239,10 +247,39 @@ test_delete_min(
         return 1;
     }
 
+    free(returned_min);
+
     return 0;    
     
 }
 
+
+int
+test_delete_all(
+        struct priority_queue           *pq)
+{
+    int delete_counter                  = 0; 
+    struct priority_node *pn            = NULL;
+    
+
+    while ((pn = delete_min(pq)) != NULL) {
+        delete_counter++;
+#if DEBUG
+        printf("[%s:%d] Deleting priority_node: %p\n"\
+                "pn->priority: %d pn->value: %d\n",
+                DEBUG_INFO, pn, pn->priority,
+                VOID_TO_INT(pn->value));
+#endif /* DEBUG */
+
+        free(pn);
+    }
+
+    if (delete_counter != 10) {
+        return 1;
+    }
+
+    return 0;
+}
 
 
 /* Main entry point to the test suite */
@@ -306,5 +343,13 @@ int main()
     rc = test_delete_min(pq);
     VERIFY_TEST(rc, "test_delete_min"); 
 
+    rc = test_delete_all(pq);
+    VERIFY_TEST(rc, "test_delete_all");
+
+    /* Clean up */
+    free(test_list);
+    free(pq->root);
+    free(pq);
+    
     return 0;
 }

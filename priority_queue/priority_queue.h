@@ -21,7 +21,7 @@ struct priority_node {
 struct priority_queue {
     struct priority_node **root;             /* Pointer to the root of the tree */
     int last_node;                           /* Value of the last node */
-    int size;                                /* Max size of priority queue */
+    int size;                                /* Max (total) size of priority queue */
 };
 
 /* Delete and return the node with the highest priority */

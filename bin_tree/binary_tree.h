@@ -24,13 +24,17 @@ int create_node(struct bin_node *root, struct bin_node *new_node,
                 int (*comp)(void *a, void *b));
 
 /*
- * Skipping deletion for the time being.  Can't remember
- * how to do it.
+ * Delete a node from a tree
  */
+struct bin_node*
+delete_node(struct bin_node *root, void *value,
+            int (*comp)(void *a, void *b));
 
-/* int delete_node(struct bin_node *root, struct bin_node *node,
-                int (*comp)(void *a, void *b));
-*/
+/*
+ * Delete the minimum from a tree
+ */
+struct bin_node*
+delete_min(struct bin_node *root);
 
 /*
  * Preorder traversal of tree.
@@ -49,5 +53,7 @@ int postorder_traversal(struct bin_node *root,
  */
 int inorder_traversal(struct bin_node *root,
                       void (*node_op)(struct bin_node *a));
+
+
 
 #endif

@@ -57,18 +57,36 @@ int create_node(
     return rc;
 }
 
-/* 
- * TODO: Delete node -- I think it is a 
- * float down procedure.
- */
-int delete_node()
+struct bin_node*
+delete_node(
+    struct bin_node             *root,
+    void                        *value,
+    int (*comp)(void *a, void *b))
 {
 #if DEBUG
     fprintf(stderr, "[%s:%d] ERROR: %s not implemented\n",
             DEBUG_INFO, __FUNCTION__);
 #endif
-    return 0;
+    return NULL;
 }
+
+struct bin_node*
+delete_min(
+    struct bin_node             *root)
+{
+    struct bin_node *parent     = NULL;
+    struct bin_node *child      = NULL;
+
+    parent = root;
+    child = parent->left_child;
+
+    while (child != NULL){
+        parent = child;
+        child = parent->left_child;
+    }
+    return parent;
+}
+
 
 
 int preorder_traversal(

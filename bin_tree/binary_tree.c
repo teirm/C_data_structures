@@ -63,30 +63,119 @@ delete_node(
     void                        *value,
     int (*comp)(void *a, void *b))
 {
+    int direction               = 0;
+    struct bin_node *parent     = NULL;
+    struct bin_node *to_delete  = NULL;
+    struct bin_node *right_min  = NULL;
+
+    to_delete = root;
+    
+    do {
+        if (comp(to_delete->value, value) == 0) {
+            break;
+        } else if (comp(parent->value, value) > 0) {
+            parent = to_delete;
+            to_delete = to_delete->right_child;
+            direction = 1;
+        } else { 
+            parent = to_delete;
+            to_delete = to_delete->left_child;
+            direction -1;
+        }
+    } while (to_delete != NULL);
+
+    if (to_delete != NULL && parent == NULL) {
+        /* Deleting root case */
+        right_min = delete_min(to_delete->right_child);
+        if (right_min == NULL) {
+            root = to_delete->left_child;
+            to_delete->left_child = NULL;
+        } else {
+            right_min->left_child = to_delete->left_child;
+            right_min->right_child = to_delete->right_child;
+            
+            to_delete->left_child = NULL;
+            to_delete->right_child = NULL;
+        }
+    } else if (to_delete != NULL && parent != NULL) {
+        right_min = delete_min(to_delete->right_child);
+        
+        if (right_min == NULL) {
+            if (direction > 0) {
+                parent->right_child = to_delete->left_child;
+            } else {
+                parent->left_child = to_delete->left_child;
+            }
+        } else {
+            
+            right_min->left_child = to_delete->left_child;
+            right_min->right_child = to_delete->right_child;
+            
+            to_delete->left_child = NULL;
+            to_delete->right_child =NULL;
+
+            if (direction > 0) {
+                parent->right_child = right_min;
+            } else {
+                parent->left_child = right_min;
+            }
+        }
+    } else {
 #if DEBUG
-    fprintf(stderr, "[%s:%d] ERROR: %s not implemented\n",
-            DEBUG_INFO, __FUNCTION__);
+        fprintf(stderr, "[%s:%d] Value: %p not found in tree\n",
+                DEBUG_INFO, value);
 #endif
-    return NULL;
+    }
+    
+    return to_delete;
 }
+
 
 struct bin_node*
 delete_min(
     struct bin_node             *root)
 {
+    struct bin_node *g_parent   = NULL; 
     struct bin_node *parent     = NULL;
     struct bin_node *child      = NULL;
+    
 
     parent = root;
+   
+    if (parent == NULL) {
+        return NULL;
+    }
+     
     child = parent->left_child;
 
     while (child != NULL){
+        g_parent = parent;
         parent = child;
         child = parent->left_child;
     }
+
+    g_parent->left_child = NULL;
     return parent;
 }
 
+
+struct bin_node*
+find_node(
+    struct bin_node             *root,
+    void                        *value,
+    int (*comp)(void *a, void *b))
+{
+    
+    if (root == NULL) {
+        return root;
+    } else if (comp(root->value, value) == 0) {
+        return root;
+    } else if (comp(root->value, value) < 0) {
+        return find_node(root->left_child, value, comp);
+    } else {
+        return find_node(root->right_child, value, comp);
+    }
+}
 
 
 int preorder_traversal(

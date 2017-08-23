@@ -23,15 +23,23 @@ struct bin_node {
 int create_node(struct bin_node *root, struct bin_node *new_node,
                 int (*comp)(void *a, void *b));
 
+
 /*
- * Delete a node from a tree
+ * Find a node in the tree.
+ */
+struct bin_node*
+find_node(struct bin_node *root, void *value,
+          int (*comp)(void *a, void *b));
+
+/*
+ * Delete a node from a tree.
  */
 struct bin_node*
 delete_node(struct bin_node *root, void *value,
             int (*comp)(void *a, void *b));
 
 /*
- * Delete the minimum from a tree
+ * Delete the minimum from a tree.
  */
 struct bin_node*
 delete_min(struct bin_node *root);

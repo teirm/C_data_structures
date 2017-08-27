@@ -16,12 +16,20 @@ struct trie_node {
     struct trie_node *next;     /* pointer to next cell on list */
 };
 
-int make_null(struct trie_node *node);
+/*
+ * Inserts a word into the trie
+ */
+int insert_word(struct trie_node *root, const char *word);
 
-int assign(struct trie_node *root, struct trie_node *node, char c);
+/*
+ * Deletes a word, if it exists into the trie
+ */
+int delete_word(struct trie_node *root, const char *word);
 
-struct trie_node* value_of(struct trie_node *root, char c);
-
-struct trie_node* get_new(struct trie_node *root, char c);
+/*
+ * Creates a new node for the trie holding the given
+ * character
+ */
+struct trie_node* create_node(struct trie_node *root, char c);
 
 #endif /* TRIE_GUARD */ 

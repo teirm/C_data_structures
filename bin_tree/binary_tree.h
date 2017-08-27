@@ -21,7 +21,7 @@ struct bin_node {
  * tree at first available position.
  */
 int create_node(struct bin_node *root, struct bin_node *new_node,
-                int (*comp)(void *a, void *b));
+                int (*comp)(const void *a, const void *b));
 
 
 /*
@@ -36,7 +36,7 @@ find_node(struct bin_node *root, void *value,
  */
 struct bin_node*
 delete_node(struct bin_node *root, void *value,
-            int (*comp)(void *a, void *b));
+            int (*comp)(const void *a, const void *b));
 
 /*
  * Delete the minimum from a tree.
@@ -62,6 +62,8 @@ int postorder_traversal(struct bin_node *root,
 int inorder_traversal(struct bin_node *root,
                       void (*node_op)(struct bin_node *a));
 
+int get_min(int *array, int size);
+            
 
 
 #endif

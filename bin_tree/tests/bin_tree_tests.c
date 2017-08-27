@@ -13,7 +13,7 @@
 #define MAX_VALUE 100
 #define MAX_SIZE 10 
 
-#define DEBUG 0
+#define DEBUG 1
 
 #define VERIFY_TEST(x, name) {\
 if (x == 1) {\
@@ -31,30 +31,29 @@ if (x == 1) {\
 /* Comparator function for ints */
 int 
 comparator(
-        void            *a,
-        void            *b)
+        const void            *a,
+        const void            *b)
 {
     
     if (*(int *)a > *(int *)b) {
 #if DEBUG
-        printf("[%s:%d] Returning 1\n",
-                DEBUG_INFO);
+        printf("[%s:%d] Returning 1: %d > %d\n",
+                DEBUG_INFO, *(int *)a, *(int *)b);
 #endif 
         return 1;
     } else if (*(int *)a < *(int *)b){
 #if DEBUG
-        printf("[%s:%d] Returning -1\n",
-                DEBUG_INFO);
+        printf("[%s:%d] Returning -1: %d < %d\n",
+                DEBUG_INFO, *(int *)a, *(int *)b);
 #endif
         return -1;
     } else {
 #if DEBUG
-        printf("[%s:%d] Returning 0\n",
-                DEBUG_INFO);
+        printf("[%s:%d] Returning 0: %d == %d\n",
+                DEBUG_INFO, *(int *)a, *(int *)b);
 #endif
         return 0;
     }
-
 }
 
 
@@ -77,10 +76,10 @@ print_node(
            "\t\tLeft Child: %d\n"\
            "\t\tRight Child: %d\n",
            DEBUG_INFO, NODE_TO_INT(node),
-           node->left_child ? NODE_TO_INT(node->left_child): -1,
-           node->right_child ? NODE_TO_INT(node->right_child): -1);
-
+           node->left_child ? NODE_TO_INT(node->left_child): 0x0,
+           node->right_child ? NODE_TO_INT(node->right_child): 0x0);
 }
+
 
 int create_test(
         struct bin_node         *root,
@@ -129,6 +128,7 @@ int create_test(
     return 0;
 }
 
+
 int create_again_test(
         struct bin_node         *root,
         int                     *new_value)
@@ -136,19 +136,32 @@ int create_again_test(
     create_test(root, new_value);
    
     if (root == NULL) {
+#if DEBUG
+        printf("[%s:%d] ERROR: root == NULL\n",
+                DEBUG_INFO);
+#endif /* DEBUG */
         return 1;
     }
 
     if (root->left_child == NULL) {
+#if DEBUG
+        printf("[%s:%d] ERROR: root->left_child == NULL\n",
+                DEBUG_INFO);
+#endif /* DEBUG */
         return 1;
     }
 
     if (root->right_child == NULL) {
+#if DEBUG
+        printf("[%s:%d] ERROR: root->right_child == NULL\n",
+                DEBUG_INFO);
+#endif /* DEBUG */
         return 1;
     }
     
     return 0;
 }
+
 
 /*
  * Execute a preorder traversal. 
@@ -228,6 +241,101 @@ complete_tree_test(
     return 0;
 }
 
+int
+delete_min_test(
+        struct bin_node         *root,
+        int                     min)
+{
+    struct bin_node *min_node   = NULL;
+
+    min_node = delete_min(root);
+    
+    if (root == NULL) {
+#if DEBUG
+    printf("[%s:%d] ERROR: root == NULL\n",
+            DEBUG_INFO);
+#endif  /* DEBUG */
+        return 1;
+    }
+    
+    if (min_node == NULL) {
+#if DEBUG
+    printf("[%s:%d] ERROR: min_node == NULL\n",
+            DEBUG_INFO);
+#endif  /* DEBUG */
+        return 1;
+    }
+
+    if (NODE_TO_INT(min_node) != min) {
+#if DEBUG
+    printf("[%s:%d] ERROR: Not Min %d. Node value: %d\n",
+            DEBUG_INFO, min, NODE_TO_INT(min_node));
+#endif  /* DEBUG */
+        return 1;
+    }
+
+    free(min_node);
+
+    return 0;
+}
+
+int
+delete_existant_test(
+        struct bin_node         *root,
+        int                     value)
+{
+    struct bin_node *deleted_node    = NULL;
+    
+    deleted_node = delete_node(root, &value, comparator);
+
+    if (root == NULL) {
+#if DEBUG
+        printf("[%s:%d] ERROR: root == NULL\n",
+                DEBUG_INFO);
+#endif /* DEBUG */
+        return 1;
+    }
+
+    if (deleted_node == NULL) {
+#if DEBUG
+        printf("[%s:%d] ERROR: deleted_node == NULL\n",
+                DEBUG_INFO);
+#endif /* DEBUG */
+        return 1;
+    }
+
+    if (NODE_TO_INT(deleted_node) != value) {
+#if DEBUG
+        printf("[%s:%d] ERROR: deleted_node (%d) != value (%d)\n",
+                DEBUG_INFO, NODE_TO_INT(deleted_node), value);
+#endif /* DEBUG */
+        return 1;
+    }
+
+    printf("VALUE OF DELETED NODE: %d\n", NODE_TO_INT(deleted_node)); 
+
+    free(deleted_node);
+
+    return 0;
+}
+
+int
+delete_nonexistant_test(
+        struct bin_node         *root,
+        int                     value)
+{
+    struct bin_node *deleted_node   = NULL;
+
+    deleted_node = delete_node(root, &value, comparator);
+
+    if (deleted_node != NULL) {
+        return 1;
+    }
+
+    return 0;
+}
+
+
 /* Clean up function for clean up test */
 void
 free_node(
@@ -241,7 +349,7 @@ int
 clean_up_test(
         struct bin_node         *root)
 {
-    postorder_traversal(root, free_node);
+    postorder_traversal(root, print_node);
     return 0;
 }
 
@@ -250,13 +358,15 @@ int main()
 {
     int i                       = 0; 
     int rc                      = 0; 
+    int min                     = MAX_VALUE; 
     int int_array[MAX_SIZE];
-    
+        
     struct bin_node *root       = NULL;
     
 
     for (i = 0; i < MAX_SIZE; i++) {
         int_array[i] = rand() % MAX_VALUE;
+        min = int_array[i] < min ? int_array[i] : min;
 #if DEBUG
         printf("int_array[%d] = %d\n", i, int_array[i]);
 #endif
@@ -289,7 +399,20 @@ int main()
     rc = inorder_test_one(root);
     VERIFY_TEST(rc, "inorder_test_one");
 
-    rc = clean_up_test(root);
+    rc = delete_min_test(root, min);
+    VERIFY_TEST(rc, "delete_min_test");
+    
+    rc = inorder_test_one(root);
+    VERIFY_TEST(rc, "inorder_test_one");
+
+    rc = delete_existant_test(root, int_array[5]);
+    VERIFY_TEST(rc, "delete_existant_test");
+
+    /* Test bin tree does not have negative values */
+ //   rc = delete_nonexistant_test(root, -99);
+    VERIFY_TEST(rc, "delete_nonexistant_test");
+
+  //  rc = clean_up_test(root);
     VERIFY_TEST(rc, "clean_up_test");
     
     return 0;

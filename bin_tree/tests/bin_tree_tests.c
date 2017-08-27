@@ -402,8 +402,14 @@ int main()
     rc = delete_min_test(root, min);
     VERIFY_TEST(rc, "delete_min_test");
     
+    rc = delete_existant_test(root, 49);
+    VERIFY_TEST(rc, "delete_existant_test:49");
+
+    rc = delete_existant_test(root, 35);
+    VERIFY_TEST(rc, "delete_existant_test:35");
+    
     rc = delete_existant_test(root, 86);
-    VERIFY_TEST(rc, "delete_existant_test");
+    VERIFY_TEST(rc, "delete_existant_test:86");
     
     rc = inorder_test_one(root);
     VERIFY_TEST(rc, "inorder_test_one");

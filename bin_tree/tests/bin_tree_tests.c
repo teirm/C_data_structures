@@ -13,7 +13,7 @@
 #define MAX_VALUE 100
 #define MAX_SIZE 10 
 
-#define DEBUG 1
+#define DEBUG 0
 
 #define VERIFY_TEST(x, name) {\
 if (x == 1) {\
@@ -349,7 +349,7 @@ int
 clean_up_test(
         struct bin_node         *root)
 {
-    postorder_traversal(root, print_node);
+    postorder_traversal(root, free_node);
     return 0;
 }
 
@@ -402,17 +402,17 @@ int main()
     rc = delete_min_test(root, min);
     VERIFY_TEST(rc, "delete_min_test");
     
+    rc = delete_existant_test(root, 86);
+    VERIFY_TEST(rc, "delete_existant_test");
+    
     rc = inorder_test_one(root);
     VERIFY_TEST(rc, "inorder_test_one");
 
-    rc = delete_existant_test(root, int_array[5]);
-    VERIFY_TEST(rc, "delete_existant_test");
-
     /* Test bin tree does not have negative values */
- //   rc = delete_nonexistant_test(root, -99);
+    rc = delete_nonexistant_test(root, -99);
     VERIFY_TEST(rc, "delete_nonexistant_test");
 
-  //  rc = clean_up_test(root);
+    rc = clean_up_test(root);
     VERIFY_TEST(rc, "clean_up_test");
     
     return 0;

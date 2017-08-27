@@ -4,7 +4,7 @@
  * Purpose: Binary tree implementation.
  */
 
-#define DEBUG 1
+#define DEBUG 0
 
 #include <stdlib.h>
 
@@ -64,7 +64,6 @@ delete_node(
     void                        *value,
     int (*comp)(const void *a, const void *b))
 {
-    int i                       = 0;
     int direction               = 0;
     struct bin_node *parent     = NULL;
     struct bin_node *to_delete  = NULL;
@@ -84,10 +83,8 @@ delete_node(
             to_delete = to_delete->right_child;
             direction = 1;
         }
-        printf("iteration: %d\n", i++);
     } while (to_delete != NULL);
 
-    printf("to_delete: %p\n", to_delete);
 
     if (to_delete != NULL && parent == NULL) {
         /* Deleting root case */
@@ -112,17 +109,18 @@ delete_node(
         right_min = delete_min(to_delete->right_child);
 
         if (right_min == NULL) {
-            printf("Branch 2 1\n");
             if (direction > 0) {
                 parent->right_child = to_delete->left_child;
             } else {
                 parent->left_child = to_delete->left_child;
             }
         } else {
-            printf("Branch 2 2\n");
             right_min->left_child = to_delete->left_child;
-            right_min->right_child = to_delete->right_child;
             
+            if (right_min != to_delete->right_child) { 
+                right_min->right_child = to_delete->right_child;
+            }
+
             to_delete->left_child = NULL;
             to_delete->right_child =NULL;
 
@@ -132,8 +130,6 @@ delete_node(
                 parent->left_child = right_min;
             }
         }
-        printf("to_delete->right: %p\nto_delete->left_child: %p\n",
-                to_delete->right_child, to_delete->left_child);
     } else {
 #if DEBUG
         fprintf(stderr, "[%s:%d] Value: %p not found in tree\n",

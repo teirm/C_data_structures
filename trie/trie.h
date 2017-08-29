@@ -30,6 +30,6 @@ int delete_word(struct trie_node *root, const char *word);
  * Creates a new node for the trie holding the given
  * character
  */
-struct trie_node* create_node(struct trie_node *root, char c);
+struct trie_node* create_node(const char c);
 
 #endif /* TRIE_GUARD */ 

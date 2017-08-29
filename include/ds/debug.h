@@ -16,3 +16,8 @@ if (x == 1) {\
 
 /* Debugging printf info */
 #define DEBUG_INFO __FUNCTION__, __LINE__
+
+/* Error codes */
+#define DS_ENOTFOUND 0x001
+#define DS_ENOMEM    0x002
+#define DS_EIO       0x003

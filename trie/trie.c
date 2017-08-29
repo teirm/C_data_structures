@@ -96,7 +96,7 @@ delete_word(
             /* continue down prefix path */
         } else {
             if ((current_node = current_node->next) == NULL) {
-                return 1;
+                return DS_ENOTFOUND;
 #if DEBUG > 0 
                 printf("[%s:%d] Word %s not in trie\n",
                         DEBUG_INFO, word);

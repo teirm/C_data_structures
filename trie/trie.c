@@ -39,45 +39,39 @@ insert(
     int pos                         = 0;
     char current_char               = word[pos];
     struct trie_node *current_node  = root;
-    struct trie_node *new_node      = NULL; 
-
+    struct trie_node *next_node     = NULL;
     while (current_char != '\0') {
+        
+        if (!current_node) {
+            current_node = create_node(current_char);
+        }
+
         if (current_node->domain == current_char) {
-            current_char = word[pos++];
-#if DEBUG > 0 
-            printf("[%s:%d] word: %s pos %d current_char: %c\n",
-                    DEBUG_INFO, word, pos, current_char);
-#endif /* DEBUG */
+            current_char = word[++pos];
             if (current_node->value) {
                 current_node = current_node->value;
-#if DEBUG > 0 
-            printf("[%s:%d] match prefix: current_node: %p current_node->domain: %c\n",
-                    DEBUG_INFO, current_node, current_node->domain);
-#endif /* DEBUG */
             } else {
-                new_node = create_node(current_char);
-                current_node->next = new_node;
-#if DEBUG > 0 
-            printf("[%s:%d] match branch: current_node: %p current_node->domain: %c\n",
-                    DEBUG_INFO, current_node, current_node->domain);
-#endif /* DEBUG */
+                current_node->value = create_node(current_char);
+                current_node = current_node->value;
             }
         } else {
             if (current_node->next) {
-#if DEBUG > 0 
-            printf("[%s:%d] mis-match next: current_node: %p current_node->domain: %c\n",
-                    DEBUG_INFO, current_node, current_node->domain);
-#endif /* DEBUG */
                 current_node = current_node->next;
             } else {
-#if DEBUG > 0 
-            printf("[%s:%d] mis-match branch: current_node: %p current_node->domain: %c\n",
-                    DEBUG_INFO, current_node, current_node->domain);
-#endif /* DEBUG */
                 current_node->next = create_node(current_char);
             }
         }
     }
+    
+    /* Need way of indicating end of words */
+    if (current_node->value) {
+        next_node = current_node->value;
+        current_node->value = create_node(-1);
+        current_node->value->next = next_node;
+    } else {
+        current_node->value = create_node(-1);
+    }
+
 
     return 0;
 }

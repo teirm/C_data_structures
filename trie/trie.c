@@ -8,7 +8,7 @@
 #include "trie.h"
 #include <ds/debug.h>
 
-#define DEBUG 0
+#define DEBUG 1
 
 #if DEBUG > 0 
 #include <stdio.h>
@@ -32,22 +32,32 @@ create_node(
 
 int
 insert(
-        struct trie_node            *root,
+        struct trie_node            **root,
         const char                  *word)
 {
      
     int pos                         = 0;
     char current_char               = word[pos];
-    struct trie_node *current_node  = root;
+    struct trie_node *current_node  = *root;
     struct trie_node *next_node     = NULL;
     while (current_char != '\0') {
-        
+
         if (!current_node) {
-            current_node = create_node(current_char);
+#if DEBUG > 0
+            fprintf(stderr, "[%s:%d] creating a new root\n",
+                            DEBUG_INFO);
+#endif
+            *root = create_node(current_char);
+            current_node = *root;
         }
 
         if (current_node->domain == current_char) {
             current_char = word[++pos];
+
+            if (current_char == '\0') {
+                break;
+            }
+
             if (current_node->value) {
                 current_node = current_node->value;
             } else {
@@ -65,6 +75,15 @@ insert(
     
     /* Need way of indicating end of words */
     if (current_node->value) {
+       
+        if (current_node->value->domain == -1) {
+            /* No duplicates */ 
+            return 0;
+        }
+       
+        /* Any previous values will be contined 
+         * from the current prefix.
+         */
         next_node = current_node->value;
         current_node->value = create_node(-1);
         current_node->value->next = next_node;
@@ -72,18 +91,18 @@ insert(
         current_node->value = create_node(-1);
     }
 
-
     return 0;
 }
 
+
 int
 delete_word(
-        struct trie_node            *root,
+        struct trie_node            **root,
         const char                  *word)
 {
     int pos                             = 0; 
     char current_char                   = word[pos]; 
-    struct trie_node *current_node      = root;
+    struct trie_node *current_node      = *root;
 
     while (current_char != '\0') {
         if (current_node->domain == current_char) {

@@ -12,19 +12,19 @@
 
 struct trie_node {
     char    domain;             /* character held by trie */
-    struct trie_node *value;    /* pointer to first cell on list for child */
-    struct trie_node *next;     /* pointer to next cell on list */
+    struct  trie_node *value;    /* pointer to first cell on list for child */
+    struct  trie_node *next;     /* pointer to next cell on list */
 };
 
 /*
  * Inserts a word into the trie
  */
-int insert_word(struct trie_node *root, const char *word);
+int insert(struct trie_node **root, const char *word);
 
 /*
  * Deletes a word, if it exists into the trie
  */
-int delete_word(struct trie_node *root, const char *word);
+int delete_word(struct trie_node **root, const char *word);
 
 /*
  * Creates a new node for the trie holding the given

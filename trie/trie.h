@@ -32,4 +32,11 @@ int delete_word(struct trie_node **root, const char *word);
  */
 struct trie_node* create_node(const char c);
 
+
+/*
+ * Determines if a word exists in the trie or not
+ */
+int find_word(struct trie_node **root, const char *word);
+
+
 #endif /* TRIE_GUARD */ 

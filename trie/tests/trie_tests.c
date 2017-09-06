@@ -25,45 +25,11 @@ int test_insert(
     return 0;
 }
 
-
-int test_insert_subword(
+int test_find_word(
         struct trie_node        **root,
         char                    *word)
 {
-    if (insert(root, word)) {
-        return 1;
-    }
-
-    return 0;
-}
-
-int test_insert_superword(
-        struct trie_node        **root,
-        char                    *word)
-{
-    if (insert(root, word)) {
-        return 1;
-    }
-
-    return 0;
-}
-
-int test_insert_new_word(
-        struct trie_node        **root,
-        char                    *word)
-{
-    if (insert(root, word)) {
-        return 1;
-    }
-
-    return 0;
-}
-
-int test_insert_new_sub_word(
-        struct trie_node        **root,
-        char                    *word)
-{
-    if (insert(root, word)) {
+    if (find_word(root, word)) {
         return 1;
     }
 
@@ -86,17 +52,27 @@ int main()
     rc = test_insert(&root, word);  
     VERIFY_TEST(rc, "test_insert"); 
 
-    rc = test_insert_subword(&root, sub_word);
+    rc = test_insert(&root, sub_word);
     VERIFY_TEST(rc, "test_insert_subword");
 
-    rc = test_insert_superword(&root, super_word);
+    rc = test_insert(&root, super_word);
     VERIFY_TEST(rc, "test_insert_superword");
 
-    rc = test_insert_new_word(&root, new_word);
+    rc = test_insert(&root, new_word);
     VERIFY_TEST(rc, "test_insert_new_word");
 
-    rc = test_insert_new_sub_word(&root, new_sub_word);
+    rc = test_insert(&root, new_sub_word);
     VERIFY_TEST(rc, "test_insert_new_sub_word");
+
+    rc = test_find_word(&root, word);
+    VERIFY_TEST(rc, "test_find_word_1");
+
+    rc = test_find_word(&root, sub_word);
+    VERIFY_TEST(rc, "test_find_word_2");
+    
+    rc = test_find_word(&root, super_word);
+    VERIFY_TEST(rc, "test_find_word_3");
+
 
     return rc;
 }

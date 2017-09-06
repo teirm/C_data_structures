@@ -96,6 +96,32 @@ insert(
 
 
 int
+find_word(
+        struct trie_node            **root,
+        const char                  *word)
+{
+    int pos                            = 0;
+    int current_char                    = word[pos];
+    struct trie_node *current_node      = *root;
+
+    while (current_char != '\0') {
+        if (current_node->domain == current_char) {
+            current_node = current_node->value;
+            current_char = word[++pos];
+        } else {
+            current_node = current_node->next;
+            if (current_node == NULL) {
+                return DS_ENOTFOUND;
+            }
+        }
+    }
+    
+    return 0;
+}
+
+
+
+int
 delete_word(
         struct trie_node            **root,
         const char                  *word)

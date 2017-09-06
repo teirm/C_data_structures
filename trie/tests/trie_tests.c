@@ -48,6 +48,28 @@ int test_insert_superword(
     return 0;
 }
 
+int test_insert_new_word(
+        struct trie_node        **root,
+        char                    *word)
+{
+    if (insert(root, word)) {
+        return 1;
+    }
+
+    return 0;
+}
+
+int test_insert_new_sub_word(
+        struct trie_node        **root,
+        char                    *word)
+{
+    if (insert(root, word)) {
+        return 1;
+    }
+
+    return 0;
+}
+
 
 /* Main entry point */
 int main()
@@ -56,6 +78,8 @@ int main()
     char *word                   = "dogs";
     char *sub_word               = "do";
     char *super_word             = "dogsby";
+    char *new_word               = "fish";
+    char *new_sub_word           = "fin"; 
     struct trie_node *root       = NULL;
     
 
@@ -68,6 +92,11 @@ int main()
     rc = test_insert_superword(&root, super_word);
     VERIFY_TEST(rc, "test_insert_superword");
 
-    return rc;
+    rc = test_insert_new_word(&root, new_word);
+    VERIFY_TEST(rc, "test_insert_new_word");
 
+    rc = test_insert_new_sub_word(&root, new_sub_word);
+    VERIFY_TEST(rc, "test_insert_new_sub_word");
+
+    return rc;
 }

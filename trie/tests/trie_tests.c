@@ -14,7 +14,8 @@
 
 
 
-int test_insert(
+int
+test_insert(
         struct trie_node        **root,
         char                    *word)
 {
@@ -25,7 +26,8 @@ int test_insert(
     return 0;
 }
 
-int test_find_word(
+int
+test_find_word(
         struct trie_node        **root,
         char                    *word)
 {
@@ -36,17 +38,30 @@ int test_find_word(
     return 0;
 }
 
+int
+test_find_nonexistant_word(
+        struct trie_node        **root,
+        char                    *word)
+{
+    if (!find_word(root,word)) {
+        return 1;
+    }
+
+    return 0;
+}
+
 
 /* Main entry point */
 int main()
 {
-    int rc                       = 0;
-    char *word                   = "dogs";
-    char *sub_word               = "do";
-    char *super_word             = "dogsby";
-    char *new_word               = "fish";
-    char *new_sub_word           = "fin"; 
-    struct trie_node *root       = NULL;
+    int rc                          = 0;
+    char *word                      = "dogs";
+    char *sub_word                  = "do";
+    char *super_word                = "dogsby";
+    char *new_word                  = "fish";
+    char *new_sub_word              = "fin"; 
+    char *missing_word              = "cat"; 
+    struct trie_node *root          = NULL;
     
 
     rc = test_insert(&root, word);  
@@ -72,6 +87,9 @@ int main()
     
     rc = test_find_word(&root, super_word);
     VERIFY_TEST(rc, "test_find_word_3");
+
+    rc = test_find_nonexistant_word(&root, missing_word);
+    VERIFY_TEST(rc, "test_find_nonexistant_word");
 
 
     return rc;

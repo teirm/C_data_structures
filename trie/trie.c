@@ -111,6 +111,10 @@ find_word(
         } else {
             current_node = current_node->next;
             if (current_node == NULL) {
+#if DEBUG > 0 
+                printf("[%s:%d] Word \"%s\" not in trie %p\n",
+                        DEBUG_INFO, word, *root);
+#endif /* DEBUG */
                 return DS_ENOTFOUND;
             }
         }
@@ -127,21 +131,50 @@ delete_word(
         const char                  *word)
 {
     int pos                             = 0; 
-    char current_char                   = word[pos]; 
+    char current_char                   = word[pos];
     struct trie_node *current_node      = *root;
+    struct trie_node **delete_list      = NULL;
+    
 
+
+    if (find_word(root, word)) {
+        return 1;
+    }
+    
+    /* list of nodes to potentially delete */
+    delete_list = calloc(strlen(word)+1, sizeof *delete_list);
+   
     while (current_char != '\0') {
+    /* 
+     * current node should never be null in this loop since
+     * the word is in the trie.
+     */
         if (current_node->domain == current_char) {
-            /* continue down prefix path */
+            delete_list[pos] = current_node;
+            current_node = current_node->value;
+            current_char = word[++pos];
         } else {
-            if ((current_node = current_node->next) == NULL) {
-                return DS_ENOTFOUND;
-#if DEBUG > 0 
-                printf("[%s:%d] Word %s not in trie\n",
-                        DEBUG_INFO, word);
-#endif /* DEBUG */
-            }
+            current_node = current_node->next;
         }
-    } 
+    }
+  
+    /* Need to delete entries from the delete list backwards.
+     * If the following occurs (d is terminal):
+     *   x ...  a -> b -> c ...
+     *               |
+     *               v
+     *               d 
+     * where d is deleted and then b must also be deleted, x 
+     * should preceded  b if it is the previous letter.
+     * Therefore traversing from x and then removing b and
+     * joining a and c will the strategy.
+     */
+     
+
+    /* free delete list after it is finished */
+    free(delete_list);
+
+
+
     return 0;
 }

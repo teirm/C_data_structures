@@ -9,6 +9,7 @@
 #define TRIE_GUARD
 
 #include <stdlib.h>
+#include <string.h>
 
 struct trie_node {
     char    domain;             /* character held by trie */

@@ -130,12 +130,14 @@ delete_word(
         struct trie_node            **root,
         const char                  *word)
 {
+    int i                               = 0;
     int pos                             = 0; 
     char current_char                   = word[pos];
     struct trie_node *current_node      = *root;
     struct trie_node **delete_list      = NULL;
     
-
+    struct trie_node *delete_node       = NULL;
+    struct trie_node *delete_parent     = NULL;
 
     if (find_word(root, word)) {
         return 1;
@@ -169,12 +171,33 @@ delete_word(
      * Therefore traversing from x and then removing b and
      * joining a and c will the strategy.
      */
-     
 
+    for (i = pos; pos != 1; pos--) {
+        delete_node = delete_list[pos];
+        delete_parent = delete_list[pos-1];
+
+        if (delete_node->next == NULL &&
+                    delete_node->value == NULL) {
+            for (current_node = delete_parent->next;
+                    current_node->next != delete_node;
+                    current_node = current_node->next);
+            free(delete_node);
+            current_node->next = delete_node->next;
+        } else if (delete_node->next != NULL) {
+            for (current_node = delete_parent->next;
+                    current_node->next != delete_node;
+                    current_node = current_node->next);
+            current_node->next = delete_node->next;
+            free(delete_node);
+        } else { /* delete_node->value != NULL */
+            /* Continue -- can't break since it might 
+             * be the only word in the trie.
+             */
+            continue;
+        }
+    }
     /* free delete list after it is finished */
     free(delete_list);
-
-
 
     return 0;
 }

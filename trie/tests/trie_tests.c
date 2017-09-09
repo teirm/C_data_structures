@@ -50,6 +50,22 @@ test_find_nonexistant_word(
     return 0;
 }
 
+int
+test_delete_word(
+        struct trie_node        **root,
+        char                    *word)
+{
+    if (delete_word(root, word)) {
+        return 1;
+    }
+
+    if (!find_word(root, word)) {
+        return 1;
+    }
+
+    return 0;
+}
+
 
 /* Main entry point */
 int main()
@@ -91,6 +107,8 @@ int main()
     rc = test_find_nonexistant_word(&root, missing_word);
     VERIFY_TEST(rc, "test_find_nonexistant_word");
 
+    rc = test_delete_word(&root, word);
+    VERIFY_TEST(rc, "test_delete_word");
 
     return rc;
 }

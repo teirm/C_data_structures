@@ -120,6 +120,14 @@ find_word(
         }
     }
     
+    if (current_node->domain != -1) {
+#if DEBUG > 0 
+                printf("[%s:%d] Word \"%s\" not in trie %p\n",
+                        DEBUG_INFO, word, *root);
+#endif /* DEBUG */
+        return DS_ENOTFOUND;
+    }
+
     return 0;
 }
 
@@ -159,13 +167,18 @@ delete_word(
             current_node = current_node->next;
         }
     }
+    
+    /* Need to get the terminating node */
+    delete_list[pos] = delete_list[pos-1]->value;
   
     /* Need to delete entries from the delete list backwards.
      * If the following occurs (d is terminal):
+     * 
      *   x ...  a -> b -> c ...
      *               |
      *               v
      *               d 
+     * 
      * where d is deleted and then b must also be deleted, x 
      * should preceded  b if it is the previous letter.
      * Therefore traversing from x and then removing b and
@@ -178,22 +191,21 @@ delete_word(
 
         if (delete_node->next == NULL &&
                     delete_node->value == NULL) {
-            for (current_node = delete_parent->next;
-                    current_node->next != delete_node;
-                    current_node = current_node->next);
+            delete_parent->value = NULL; 
             free(delete_node);
-            current_node->next = delete_node->next;
         } else if (delete_node->next != NULL) {
-            for (current_node = delete_parent->next;
-                    current_node->next != delete_node;
-                    current_node = current_node->next);
-            current_node->next = delete_node->next;
-            free(delete_node);
+            if (delete_parent->value == delete_node) {
+                delete_parent->value = delete_node->next;
+                free(delete_node);
+            } else {
+                for (current_node = delete_parent->next;
+                        current_node->next != delete_node;
+                        current_node = current_node->next);
+                current_node->next = delete_node->next;
+                free(delete_node);
+            }
         } else { /* delete_node->value != NULL */
-            /* Continue -- can't break since it might 
-             * be the only word in the trie.
-             */
-            continue;
+            break; 
         }
     }
     /* free delete list after it is finished */

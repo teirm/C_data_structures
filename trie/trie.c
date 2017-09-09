@@ -100,9 +100,15 @@ find_word(
         struct trie_node            **root,
         const char                  *word)
 {
-    int pos                            = 0;
+    int pos                             = 0;
     int current_char                    = word[pos];
-    struct trie_node *current_node      = *root;
+    struct trie_node *current_node      = NULL;
+
+    if (!*root) {
+        return DS_EEMPTY;
+    }
+
+    current_node = *root;
 
     while (current_char != '\0') {
         if (current_node->domain == current_char) {
@@ -185,7 +191,7 @@ delete_word(
      * joining a and c will the strategy.
      */
 
-    for (i = pos; pos != 1; pos--) {
+    for (i = pos; pos != 0; pos--) {
         delete_node = delete_list[pos];
         delete_parent = delete_list[pos-1];
 
@@ -208,6 +214,12 @@ delete_word(
             break; 
         }
     }
+    
+    if (!delete_list[0]->value) {
+       *root = delete_list[0]->next;
+       free(delete_list[0]);
+    }
+
     /* free delete list after it is finished */
     free(delete_list);
 

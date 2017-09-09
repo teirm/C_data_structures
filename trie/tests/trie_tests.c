@@ -12,8 +12,6 @@
 #include "../trie.h"
 
 
-
-
 int
 test_insert(
         struct trie_node        **root,
@@ -67,6 +65,20 @@ test_delete_word(
 }
 
 
+int
+test_delete_word_again(
+        struct trie_node        **root,
+        char                    *word)
+{
+    if (!delete_word(root, word)) {
+        return 1;
+    }
+
+    return 0;
+}
+
+
+
 /* Main entry point */
 int main()
 {
@@ -109,6 +121,21 @@ int main()
 
     rc = test_delete_word(&root, word);
     VERIFY_TEST(rc, "test_delete_word");
+
+    rc = test_delete_word(&root, sub_word);
+    VERIFY_TEST(rc, "test_delete_subword");
+    
+    rc = test_delete_word(&root, super_word);
+    VERIFY_TEST(rc, "test_delete_super_word");
+    
+    rc = test_delete_word_again(&root, sub_word);
+    VERIFY_TEST(rc, "test_delete_subword_again");
+
+    rc = test_delete_word(&root, new_word);
+    VERIFY_TEST(rc, "test_delete_new_word");
+
+    rc = test_delete_word(&root, new_sub_word);
+    VERIFY_TEST(rc, "test_delete_new_sub_word");
 
     return rc;
 }

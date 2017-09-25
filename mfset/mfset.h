@@ -1,6 +1,8 @@
 /*
  * Purpose: A tree implementation with merge
  *          and find.  Uses path compression.
+ *          Note: Equivalence classes  will be 
+ *                identified by the root. 
  * Author:  Cyrus Ramavarapu
  * Date:    16 September 17
  */
@@ -11,29 +13,36 @@
 #define MAX_CHILDREN 1024                       /* Upper bound for node children */
 
 struct mfset {
-    int                         (comp)(void *, void *);    /* Comparison function */      
+    int                         (*comp)(void *, void *);    /* Comparison function */
     int                         *mfset_sizes;              /* Array of sizes */                         
-    struct mfset_node           *mfset_roots;              /* Array of roots */
+    struct mfset_node          **mfset_roots;              /* Array of roots */
 };
 
 struct mfset_node {
-    struct mfset_node       *parent;            /* Point to the nodes parent */
-    struct mfset_node       *children;          /* Array of children */
-    void                    *elem;              /* element held by node */
+    int                         position;           /* Position in the array of roots */
+    int                         next_child; 
+    struct mfset_node           *parent;            /* Point to the nodes parent */
+    struct mfset_node          **children;          /* Array of children */
+    void                        *elem;              /* element held by node */
 };
 
 struct mfset_node*
 mfset_find(
-            struct mfset        *mfset_roots,
-            void                *value);
+    struct mfset_node       *elem);
 
-
-struct mfset_node*
+int
 mfset_merge(
-            struct mfset_node   *set_a,
-            struct mfset_node   *set_b);
+    struct mfset            *set,
+    struct mfset_node       *elem_a,
+    struct mfset_node       *elem_b);
+
+int
+mfset_do_merge(
+    struct mfset_node       *smaller,
+    struct mfset_node       *larger);
 
 
 struct mfset *
 mfset_initialize(
-        int             (comp)(void *, void *));
+        int             initial_size,
+        int             (*comp)(void *, void *));

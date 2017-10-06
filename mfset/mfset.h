@@ -46,3 +46,15 @@ struct mfset *
 mfset_initialize(
         int             initial_size,
         int             (*comp)(void *, void *));
+
+int 
+mfset_compress_path(
+    struct mfset_node       *root,
+    struct mfset_node       *elem);
+
+int mfset_remove_child(
+    struct mfset_node       *parent,
+    struct mfset_node       *child);
+
+
+

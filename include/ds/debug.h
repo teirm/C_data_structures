@@ -22,3 +22,4 @@ if (x == 1) {\
 #define DS_ENOMEM    0x002 /* Out of memeory */
 #define DS_EIO       0x003 /* IO error */
 #define DS_EEMPTY    0x004 /* Empty data structure */
+#define DS_ECAP      0x005 /* Datastructure capacity hit */

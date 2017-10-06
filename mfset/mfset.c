@@ -122,8 +122,60 @@ mfset_find(
     return elem_root;
 }
 
+int
+mfset_compress_path(
+    struct mfset_node           *root,
+    struct mfset_node           *elem)
+{
+    int rc                      = 0;
+    struct mfset_node           *curr_elem = elem;
+    struct mfset_node           *parent = curr_elem->parent;
 
+    while (parent != root) {
+        rc = mfset_remove_child(parent, elem);
+        if (rc) {
+            goto exit;
+        }
+        rc = mfset_do_merge(curr_elem, root);
+        if (rc) {
+            goto exit;
+        }
+        curr_elem = parent;
+        parent = curr_elem->parent;
+    }
+exit:    
+    return 0;
+}
 
+int
+mfset_remove_child(
+    struct mfset_node           *parent,
+    struct mfset_node           *del_child)
+{
+    int                          child_pos = 0;
+    int                          last_child = parent->next_child - 1;
+    struct mfset_node           *current_child = parent->children[0];    
+    
+    /* Is the array of children calloc'd to NULLs? */
+    while (current_child != NULL) {
+        if (current_child == del_child) {                     
+            break;
+        }
+        child_pos++; 
+    }    
+    
+    if (current_child == NULL) {
+        return DS_ENOTFOUND;
+    }
+    
+    /* There is no need to keep the children of a node
+     * in order since this is a set.
+     */
+    parent->children[child_pos] = parent->children[last_child];
+    parent->next_child--;
+    
+    return 0;
+}
 
 
 

@@ -130,7 +130,6 @@ mfset_compress_path(
     struct mfset_node           *curr_elem = elem;
     struct mfset_node           *parent = curr_elem->parent;
 
-<<<<<<< HEAD
     if (parent == NULL) {
         goto exit;
     }
@@ -151,24 +150,6 @@ exit:
     return 0;
 }
 
-=======
-    while (parent != root) {
-        rc = mfset_remove_child(parent, elem);
-        if (rc) {
-            goto exit;
-        }
-        rc = mfset_do_merge(curr_elem, root);
-        if (rc) {
-            goto exit;
-        }
-        curr_elem = parent;
-        parent = curr_elem->parent;
-    }
-exit:    
-    return 0;
-}
-
->>>>>>> 7b11ec55c953280bbb6971a60f99e39da3797865
 int
 mfset_remove_child(
     struct mfset_node           *parent,

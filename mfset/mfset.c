@@ -58,8 +58,8 @@ mfset_merge(
     struct mfset_node           *elem_a_root = elem_a;
     struct mfset_node           *elem_b_root = elem_b;
 
-    elem_a_root = mfset_find(elem_a);
-    elem_b_root = mfset_find(elem_b);
+    elem_a_root = mfset_find(elem_a_root);
+    elem_b_root = mfset_find(elem_b_root);
 
     set_a_size = set->mfset_sizes[elem_a_root->position];
     set_b_size = set->mfset_sizes[elem_b_root->position]; 
@@ -129,6 +129,10 @@ mfset_compress_path(
     int rc                      = 0;
     struct mfset_node           *curr_elem = elem;
     struct mfset_node           *parent = curr_elem->parent;
+
+    if (parent == NULL) {
+        goto exit;
+    }
 
     while (parent != root) {
         rc = mfset_remove_child(parent, elem);

@@ -58,7 +58,6 @@ create_set(
         if (!node_array[i]->children) {
             return DS_ENOMEM;
         }
-        
         node_array[i]->elem = &element_array[i]; 
     }
 
@@ -170,7 +169,7 @@ int main()
     /* Initialization for test_set */
     test_set = calloc(1, sizeof *test_set);
     test_set->mfset_sizes = calloc(TEST_ELEMENTS, sizeof *test_set->mfset_sizes);
-    test_set->mfset_roots = calloc(TEST_ELEMENTS, sizeof *test_set->mfset_sizes);
+    test_set->mfset_roots = calloc(TEST_ELEMENTS, sizeof *test_set->mfset_roots);
     test_set->comp = mfset_int_comp; 
 
     /* Initialization for the disorganized set of elements */
@@ -178,12 +177,10 @@ int main()
     rc = create_set(node_array);
     VERIFY_TEST(rc, "create_set");  
 
-    
     for (i = 0; i < TEST_ELEMENTS; i++) { 
         test_set->mfset_roots[i] = node_array[i];
         test_set->mfset_sizes[i] = 1;
     }
-
     /* Check setup prior to testing */
     rc = check_sanity(test_set);
     VERIFY_TEST(rc, "check_sanity");
@@ -202,7 +199,7 @@ int main()
 
     rc = test_large_merge(test_set, node_array);
     VERIFY_TEST(rc, "test_large_merges");
-
+/*
     rc = test_find(node_array);
     VERIFY_TEST(rc, "test_find");
 
@@ -211,7 +208,7 @@ int main()
 
     rc = cleanup(test_set, node_array);
     VERIFY_TEST(rc, "cleanup");
-
+*/
     return rc;
 }
 

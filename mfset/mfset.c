@@ -4,6 +4,8 @@
  * Date:    24 September 2017
  */
 
+#include <stdio.h>
+
 #include "mfset.h"
 
 
@@ -59,26 +61,48 @@ mfset_merge(
     struct mfset_node           *elem_b_root = elem_b;
 
     elem_a_root = mfset_find(elem_a_root);
+   
+    printf("The parent of %p is %p\n",
+            elem_a, elem_a_root);
+
     elem_b_root = mfset_find(elem_b_root);
+    
+    printf("The parent of %p is %p\n",
+            elem_b, elem_b_root);
 
     set_a_size = set->mfset_sizes[elem_a_root->position];
+    printf("The size of set_a %d\n",
+            set_a_size);
+
     set_b_size = set->mfset_sizes[elem_b_root->position]; 
+    printf("The size of set_b %d\n",
+            set_b_size);
+    
     total_size = set_a_size + set_b_size; 
 
+    printf("The total size is %d\n",
+            total_size);
+
     if (set_a_size > set_b_size) {
-        rc = mfset_do_merge(elem_a_root, elem_b_root);
-        if (rc) {
-            return rc;
-        }
-        set->mfset_sizes[elem_a_root->position] = total_size;
-        /* Set has moved, so root no longer should point to anything */
-        set->mfset_roots[elem_b_root->position] = NULL ; 
-    } else {
+        /* moving set b into set a */
         rc = mfset_do_merge(elem_b_root, elem_a_root);
         if (rc) {
             return rc;
         }
+        set->mfset_sizes[elem_a_root->position] = total_size;
+        /* Set has moved, so it (on its own is empty) */ 
+        set->mfset_sizes[elem_b_root->position] = 0;
+        /* Set has moved, so root no longer should point to anything */
+        set->mfset_roots[elem_b_root->position] = NULL ; 
+    } else {
+        /* Moving set a into set b */ 
+        rc = mfset_do_merge(elem_a_root, elem_b_root);
+        if (rc) {
+            return rc;
+        }
         set->mfset_sizes[elem_b_root->position] = total_size;
+        /* Set has moved, so it (on its own is empty) */
+        set->mfset_sizes[elem_a_root->position] = 0;
         /* Set has moved, so root no longer should point to anything */
         set->mfset_roots[elem_a_root->position] = NULL; 
     }
@@ -97,7 +121,16 @@ mfset_do_merge(
     if (next_child == MAX_CHILDREN) {
         return DS_ECAP;
     }
+
+    larger->next_child++;
     larger->children[next_child++] = smaller;
+
+    smaller->parent = larger;
+
+    printf("Smaller: %p Larger: %p\n",
+            smaller, larger);
+    printf("Larger->children[0] = %p\n",
+            larger->children[0]);
 
     return rc;
 }

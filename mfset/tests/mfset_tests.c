@@ -114,7 +114,12 @@ test_large_merge(
     struct mfset            *test_set,
     struct mfset_node       **node_array)
 {
-    return mfset_merge(test_set, node_array[3], node_array[6]);
+    int rc = 0;
+    rc = mfset_merge(test_set, node_array[9], node_array[6]);
+    if (rc) {
+        return rc;
+    }
+    return mfset_merge(test_set, node_array[0], node_array[6]);
 }
 
 

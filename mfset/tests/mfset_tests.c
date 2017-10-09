@@ -21,19 +21,12 @@ cleanup(
     struct mfset_node   **node_array)
 {
     int i;
-    int curr_child               = 0;
-    struct mfset_node *curr_node = NULL;
 
     for (i = 0; i < TEST_ELEMENTS; i++) {
-        curr_node = node_array[i];
-        curr_child = curr_node->next_child - 1; /* next child points to the next empty location */ 
-        while (curr_child) {
-            free(curr_node->children[curr_child--]);
-        }
-        free(curr_node->children);
-        free(curr_node);
+        free(node_array[i]->children);
+        free(node_array[i]);
     }
-    
+
     free(node_array);
     free(test_set->mfset_roots);
     free(test_set->mfset_sizes);
@@ -127,7 +120,7 @@ int
 test_find(
     struct mfset_node       **node_array)
 {
-    return mfset_find(node_array[3]) ?  0 : 1;
+    return mfset_find(node_array[0]) ?  0 : 1;
 }
 
 int
@@ -142,7 +135,7 @@ test_nonexistant()
     invalid_node.children = NULL;
     invalid_node.elem = &invalid_entry;
 
-    if (mfset_find(&invalid_node)) {
+    if (!mfset_find(&invalid_node)) {
         return 1;
     }
 
@@ -204,7 +197,7 @@ int main()
 
     rc = test_large_merge(test_set, node_array);
     VERIFY_TEST(rc, "test_large_merges");
-/*
+
     rc = test_find(node_array);
     VERIFY_TEST(rc, "test_find");
 
@@ -213,7 +206,7 @@ int main()
 
     rc = cleanup(test_set, node_array);
     VERIFY_TEST(rc, "cleanup");
-*/
+
     return rc;
 }
 

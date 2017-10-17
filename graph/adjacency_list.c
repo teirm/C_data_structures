@@ -30,9 +30,9 @@ graph_first(
     struct node         *vertex_node = NULL;
     graph_node          *return_node = NULL;
 
-    vertex_node = list_retrieve(v->index, &a_list->list_head);
-    
-    if (!vertex) {
+    vertex_node = a_list->list_array[v->index];
+
+    if (!vertex_node) {
         return 0;
     }
 
@@ -55,8 +55,8 @@ graph_next(
     struct node         *previous_node = NULL;
     struct node         *return_node = NULL;
 
-    vertex_node = list_retrieve(v->index, &a_list->list_head);
-    
+    vertex_node = a_list->list_array[v->index];
+
     if (!vertex_node) {
         return 0;
     }
@@ -85,7 +85,7 @@ vertex(
     struct node         *vertex_node = NULL;
     struct node         *return_node = NULL;
 
-    vertex_node = list_retrieve(v->index, &a_list->list_head);
+    vertex_node = a_list->list_array[v->index];
 
     if (!vertex_node) {
         return NULL;

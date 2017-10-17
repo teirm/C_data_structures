@@ -5,7 +5,7 @@
 
 int  test_length(struct node **list_head);
 
-int  append_node(int new_value, struct node **list_head);
+int  append_node(int *new_value, struct node **list_head);
 
 void traverse_list(struct node **list_head);
 
@@ -13,9 +13,9 @@ void test_next(int position, struct node **list_head);
 
 void test_previous(int position, struct node **list_head);
 
-void test_replace(int value, int position, struct node **list_head);
+void test_replace(int *value, int position, struct node **list_head);
 
-void test_insert(int value, int position, struct node **list_head);
+void test_insert(int *value, int position, struct node **list_head);
 
 void test_delete(int position, struct node **list_head);
 

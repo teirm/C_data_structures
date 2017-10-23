@@ -14,7 +14,7 @@ typedef struct graph_node {
 } graph_node;
 
 typedef struct adjacency_list {
-    unsigned long       verticies; 
+    unsigned long       vertices; 
     struct node       **list_array;         /* this is an array of lists */
 } adjacency_list;
 

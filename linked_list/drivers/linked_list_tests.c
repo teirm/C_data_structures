@@ -13,6 +13,8 @@ linked list data structure
 
 #define TEST_ELEMENTS    25
 
+#define VOID_TO_INT(x) *((int *)x)
+
 
 /* Entry point for test suite */
 int main() {
@@ -123,7 +125,8 @@ void traverse_list(struct node **list_head)
 
 	for (i = 0; i <= list_length; i++) {
 		current = list_retrieve(i, list_head);
-		printf("The value of node %d is %d.\n", i, current->value);
+		printf("The value of node %d is %d.\n",
+                i, VOID_TO_INT(current->value));
 	}
 }
 
@@ -132,7 +135,8 @@ void test_next(int position, struct node **list_head)
 	struct node *current;
 
 	current = list_next(position, list_head);
-	printf("The node after position %d has the value %d\n", position, current->value);
+	printf("The node after position %d has the value %d\n",
+            position, VOID_TO_INT(current->value));
 }
 
 void test_previous(int position, struct node **list_head)
@@ -140,7 +144,8 @@ void test_previous(int position, struct node **list_head)
 	struct node *current;
 
 	current = list_previous(position, list_head);
-	printf("The node before position %d has the value %d\n", position, current->value);
+	printf("The node before position %d has the value %d\n",
+            position, VOID_TO_INT(current->value));
 }
 
 void test_replace(int *new_value, int position, struct node **list_head)
@@ -169,7 +174,8 @@ void test_delete(int position, struct node **list_head)
 
 	removed_node = list_delete_entry(position, list_head);
 
-	printf("The value of removed node at position %d is %d\n", position, removed_node->value);
+	printf("The value of removed node at position %d is %d\n",
+            position, VOID_TO_INT(removed_node->value));
     free(removed_node);
 
 	printf("The list is now:\n");

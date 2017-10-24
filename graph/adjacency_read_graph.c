@@ -21,7 +21,7 @@
 #include <stdio.h>
 #include <errno.h>
 
-#include "adj_read_graph.h"
+#include "adjacency_read_graph.h"
 #include "adjacency_list.h"
 
 int
@@ -77,6 +77,12 @@ adj_read_graph(
          * using array index and then each link would
          * be an adjacent vertex or if something more
          * complicated.
+         */
+
+        /* It would be a good idea to also check for
+         * duplicates and have some policy regarding
+         * how to handle them.  For the time being
+         * I will not be dealing with the multigraphs.
          */
 
         printf("%d -> %d\n", start_vertex, end_vertex);

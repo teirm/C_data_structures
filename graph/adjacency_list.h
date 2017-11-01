@@ -22,3 +22,4 @@ int node_comp(graph_node *a, graph_node *b);
 unsigned long graph_first(adjacency_list *a_list, graph_node *v);
 unsigned long graph_next(adjacency_list *a_list, graph_node *v, unsigned long req);
 graph_node *vertex(adjacency_list *a_list, graph_node *v, unsigned long req);
+int add_node(unsigned long start_vertex, unsigned long end_vertex, void *graph_info, adjacency_list *a_list);

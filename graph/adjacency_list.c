@@ -22,6 +22,55 @@ node_comp(
     }
 }
 
+    
+graph_node *
+create_graph_node(
+    unsigned long   index,
+    void            *graph_info)
+{
+    struct graph_node   *ret_graph_node;
+
+    ret_graph_node = calloc(1, sizeof *ret_graph_node);
+    
+    ret_graph_node->index = index;
+    ret_graph_node->graph_info = graph_info;
+
+    return ret_graph_node;
+}
+
+int
+add_node(
+    unsigned long start_vertex,
+    unsigned long end_vertex,
+    void          *graph_info,
+    adjacency_list  *a_list)
+{
+    int rc = 0;
+    int length = 0;
+    
+
+    graph_node *new_graph_node = 
+        create_graph_node(end_vertex, graph_info);
+    if (new_graph_node == NULL) {
+        return 1;
+    }
+    
+    struct node *new_list_node = 
+        calloc(1, sizeof *new_list_node);
+    if (new_list_node == NULL) {
+        return 1;
+    }
+    
+    new_list_node->value =
+        new_graph_node;
+
+    length = list_get_len(a_list->list_array[start_vertex]);  
+    rc = list_insert(new_list_node,
+                     length+1,
+                     &a_list->list_array[start_vertex]);
+    return rc;
+}
+
 unsigned long
 graph_first(
     adjacency_list      *a_list,

@@ -24,6 +24,7 @@
 #include "adjacency_read_graph.h"
 #include "adjacency_list.h"
 
+
 int
 adj_read_graph(
     char *file_name)
@@ -37,10 +38,11 @@ adj_read_graph(
     int e_count = 0;
     int rc = 0; 
 
-
     adjacency_list *a_list = NULL;
 
     FILE *graph_file = NULL;
+
+    graph_node *current_node = NULL;
 
     graph_file = fopen(file_name, "r");
 
@@ -73,11 +75,10 @@ adj_read_graph(
             return 1;
         }
 
-        /* Need to recall if the a list worked by 
-         * using array index and then each link would
-         * be an adjacent vertex or if something more
-         * complicated.
-         */
+        rc = add_node(start_vertex,
+                      end_vertex,
+                      NULL,
+                      a_list);
 
         /* It would be a good idea to also check for
          * duplicates and have some policy regarding

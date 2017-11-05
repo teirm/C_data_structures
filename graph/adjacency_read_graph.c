@@ -28,6 +28,32 @@
 
 #include "adjacency_read_graph.h"
 
+int
+graph_adj_list_free_alist(
+    adjacency_list                  *a_list,
+    int                             total_vertices)
+{
+    int                             vertex;
+    struct node                     *current_node = NULL;
+
+    for (vertex = 0; vertex < total_vertices; ++vertex) {
+        current_node = list_delete_entry(0,
+                &a_list->list_array[vertex]);
+        while (current_node) {
+            free(current_node->value);
+            free(current_node);
+            
+            current_node = list_delete_entry(0,
+                    &a_list->list_array[vertex]);
+        }
+    }
+    
+    free(a_list->list_array);
+    free(a_list);
+
+    return 0;
+}
+
 adjacency_list *
 graph_adj_list_initialize_alist(
     int                             total_vertices)

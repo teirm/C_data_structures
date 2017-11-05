@@ -8,12 +8,19 @@
  *       SECOND LINE is the NUMBER OF EDGES
  *       REMAINING LINES are the EDGES as 
  *       vertex pairs.
- *
- *       Example:
+ * Note: The vertex pairs must be in order with
+ *       respect to the second vertex until issue
+ *       #3 is resolved ( Link list has no sorting
+ *       mechanism).
+ *      
+ *       This means that the input file must be
+ *       in the format of 
  *       3
  *       2
- *       1 2
+ *       1 2 
+ *       2 1
  *       1 3
+ *       2 3
  */
 
 
@@ -25,72 +32,138 @@
 #include "adjacency_list.h"
 
 
+
+adjacency_list *
+graph_adj_list_initialize_alist(
+    int                             total_vertices)
+{
+    adjacency_list *a_list = NULL;
+    a_list = calloc(1, sizeof *a_list);
+    
+    if (a_list == NULL) {
+        return NULL;
+    }
+    
+    a_list->vertices = total_vertices;
+    a_list->list_array = calloc(total_vertices,
+            sizeof *(a_list->list_array));
+    
+    return a_list;
+}
+
 int
-adj_read_graph(
+graph_adj_list_read_graph_file(
     char *file_name)
 {
     int vertices = 0;
     int edges = 0;
-  
     int start_vertex = 0;
     int end_vertex = 0;
-
     int e_count = 0;
-    int rc = 0; 
-
-    adjacency_list *a_list = NULL;
-
+    int rc = 0;
+    int error_state = 0;
     FILE *graph_file = NULL;
-
+    adjacency_list *a_list = NULL;
     graph_node *current_node = NULL;
 
     graph_file = fopen(file_name, "r");
-
     if (!graph_file) {
         perror("Error");
         return 1;
     }
-    
+   
+    error_state = 1;
     rc = fscanf(graph_file, "%d", &vertices);
+    if (rc) {
+        goto read_graph_error;
+    }
+
+    error_state = 2;
     rc = fscanf(graph_file, "%d", &edges);
+    if (rc) {
+        goto read_graph_error;
+    }
+    
+    error_state = 3;
+    a_list = graph_adj_list_initialize_alist(vertices); 
+    if (rc) {
+        goto read_graph_error;
+    }
 
-    a_list = calloc(1, sizeof *a_list);
-    a_list->vertices = vertices;
-    a_list->list_array = calloc(vertices, sizeof *(a_list->list_array));
-
+#if DEBUG
     printf("Vertices: %d\nEdges: %d\n",
             vertices, edges);
-
+#endif /* DEBUG */
     while (fscanf(graph_file,
                   "%d %d",
                   &start_vertex,
                   &end_vertex) == 2) {
         
         e_count++;
+        error_state = 4;
         if (e_count > edges) {
-            fprintf(stderr,
-                    "Error processing file %s: Too many vertices\n",
-                    file_name);
-            fclose(graph_file);
-            return 1;
+            goto read_graph_error; 
         }
-
-        rc = add_node(start_vertex,
-                      end_vertex,
-                      NULL,
-                      a_list);
+        error_state = 5;
+        rc = graph_adj_list_add_node(start_vertex,
+                                     end_vertex,
+                                     NULL,
+                                     a_list);
+        if (rc) {
+            goto read_graph_error;
+        }
 
         /* It would be a good idea to also check for
          * duplicates and have some policy regarding
          * how to handle them.  For the time being
          * I will not be dealing with the multigraphs.
          */
-
+#if DEBUG
         printf("%d -> %d\n", start_vertex, end_vertex);
+#endif /* DEBUG */ 
     }
-
+    
+    fclose(graph_file);
     
     return 0;
+
+read_graph_error:
+    switch (error_state) {
+        case 5:
+            fprintf(stderr,
+                    "Error in file %s: Failed to add node.\n",
+                    file_name);
+            fclose(graph_file);
+            break;
+        case 4:
+            fprintf(stderr,
+                    "Error in file %s: Too many edge entries.\n",
+                    file_name);
+            fclose(graph_file);
+            break;
+        case 3:
+            fprintf(stderr,
+                    "Error in file %s: Failed to create adjacency list.\n",
+                    file_name);
+            fclose(graph_file);
+            break; 
+        case 2:
+            fprintf(stderr,
+                    "Error in file %s: Failed to read edges.\n",
+                    file_name);
+            fclose(graph_file);
+            break;
+        case 1:
+            fprintf(stderr,
+                    "Error in file %s: Failed to read vertices.\n",
+                    file_name);
+            fclose(graph_file);
+            break;
+        default: /* error_state == 0 */
+            perror("Error");
+            break;
+    }
+    return rc;
 }
 
 int

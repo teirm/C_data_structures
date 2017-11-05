@@ -117,7 +117,7 @@ graph_adj_list_add_node(
         new_graph_node;
 
     return list_append(new_list_node,
-                     &a_list->list_array[start_vertex]);
+                     &(a_list->list_array[start_vertex]));
 }
 
 /* graph_adj_list_first

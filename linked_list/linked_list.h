@@ -29,8 +29,10 @@ struct node *list_next(int position, struct node **list_head);
 struct node *list_previous(int position, struct node **list_head);
 
 /* Inserts 'entry' at 'position' in given list */
- /* Returns 0 on failure, 1 otherwise  */
 int list_insert(struct node *entry, int position, struct node **list_head);
+
+/* Insert 'entry' at the end of the list */
+int list_append(struct node *entry, struct node **list_head);
 
 /* Replaces node at 'position' with 'entry' */
 int list_replace(void *value, int position, struct node **list_head);

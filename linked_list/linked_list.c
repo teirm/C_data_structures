@@ -156,6 +156,16 @@ list_insert(
 	return 0;
 }
 
+int
+list_append(
+    struct node         *entry,
+    struct node         **list_head)
+{
+    int list_length = list_get_len(*list_head);
+
+    return list_insert(entry, list_length, list_head);
+}
+
 struct node *
 list_delete_entry(
     int position,

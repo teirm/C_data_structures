@@ -3,13 +3,43 @@
  *          adjacency list.
  * Author:  cyrus
  * Date:    15 October 2017
+ * Description:
+ *
+ * The adjacency list is organized as follows:
+ * 
+ *    V 
+ *  -----
+ * |  1  | -> 2 -> n 
+ *  -----
+ * |  2  | 
+ *  -----
+ *  . . .
+ *  -----
+ * |  n  | -> 2
+ *  -----
+ *
+ *  The array of link lists V just holds link lists.
+ *  To determine the neighborhod of Vertex m examine
+ *  the link list V[m].
  */
 
+
+#include <ds/debug.h>
 #include  "adjacency_list.h"
 
-
+/* graph_adj_list_node_comp
+ *
+ * comparator function for graph nodes
+ * based on index
+ *
+ * @param a     - first graph node
+ * @param b     - second graph node
+ *
+ * @return int  - 0, -1, or 1 if a > b, 
+ *                a < b or a == b, respectively
+ */
 int
-node_comp(
+graph_adj_list_node_comp(
     graph_node      *a,
     graph_node      *b)
 {
@@ -22,57 +52,87 @@ node_comp(
     }
 }
 
-    
+
+/* graph_adj_list_create_gnode
+ *
+ * create a graph node
+ *
+ * @param index         - index to give the new node
+ * @param graph_info    - application specific information
+ *                        for node to hold.
+ */
 graph_node *
-create_graph_node(
+graph_adj_list_create_gnode(
     unsigned long   index,
     void            *graph_info)
 {
     struct graph_node   *ret_graph_node;
 
     ret_graph_node = calloc(1, sizeof *ret_graph_node);
-    
+   
+    if (ret_graph_node == NULL) {
+        return NULL;
+    }
+
     ret_graph_node->index = index;
     ret_graph_node->graph_info = graph_info;
 
     return ret_graph_node;
 }
 
+/* graph_adj_list_add_node
+ * 
+ * add a new node to the neighbohood of the start
+ * vertex.
+ *
+ * @param start_vertex      - position of start vertex
+ * @param end_vertex        - where the edge leads to
+ * @param graph_info        - information that may need
+ *                            to be held by graph
+ * @param a_list            - pointer to adjacency list
+ *                            structure
+ *
+ * @return int              - 0 on success.  
+ */
 int
-add_node(
+graph_adj_list_add_node(
     unsigned long start_vertex,
     unsigned long end_vertex,
     void          *graph_info,
     adjacency_list  *a_list)
 {
-    int rc = 0;
-    int length = 0;
-    
-
     graph_node *new_graph_node = 
-        create_graph_node(end_vertex, graph_info);
+        graph_adj_list_create_gnode(end_vertex, graph_info);
     if (new_graph_node == NULL) {
-        return 1;
+        return DS_ENOMEM;
     }
     
     struct node *new_list_node = 
         calloc(1, sizeof *new_list_node);
     if (new_list_node == NULL) {
-        return 1;
+        return DS_ENOMEM;
     }
     
     new_list_node->value =
         new_graph_node;
 
-    length = list_get_len(a_list->list_array[start_vertex]);  
-    rc = list_insert(new_list_node,
-                     length+1,
+    return list_append(new_list_node,
                      &a_list->list_array[start_vertex]);
-    return rc;
 }
 
+/* graph_adj_list_first
+ *
+ * return the lowest indexed member of vertex v's 
+ * neighborhood
+ *
+ * @param a_list  - pointer to adjacency list structure
+ * @param v       - pointer to vertex
+ *
+ * @return unsigned long - index of first node in neighbor
+ *                         hood.
+ */
 unsigned long
-graph_first(
+graph_adj_list_first(
     adjacency_list      *a_list,
     graph_node          *v)
 {
@@ -94,11 +154,29 @@ graph_first(
     return return_node->index;
 }
 
+/*
+ * graph_adj_list_next
+ * 
+ * return the vertex index of the one after requested
+ * index
+ *
+ * @param a_list   - pointer to adjacency list structure
+ * @param v        - graph node for which to search 
+ *                   neighborhood.
+ * @param req_index - first index less than one to return 
+ * 
+ * @ return unsigned long - index of first node with a higher 
+ *                          index than req index
+ *
+ * Note: This assumes that the neighborhood is in 
+ *       sorted order.  Sorting a linked list has not been
+ *       done yet.
+ */
 unsigned long
-graph_next(
+graph_adj_list_next(
     adjacency_list      *a_list,
     graph_node          *v,
-    unsigned long       req)
+    unsigned long       req_index)
 {
     struct node         *vertex_node = NULL;
     struct node         *previous_node = NULL;
@@ -109,8 +187,9 @@ graph_next(
     if (!vertex_node) {
         return 0;
     }
-    
-    previous_node = list_retrieve(req, &vertex_node);
+  
+    /* NOTE: requires that the nodes are in sorted order */
+    previous_node = list_retrieve(req_index, &vertex_node);
     
     if (!previous_node) {
         return 0;
@@ -125,11 +204,22 @@ graph_next(
     return ((graph_node*)return_node)->index;
 }
 
+/* graph_adj_list_vertex
+ *
+ * return the graph node at vertex i from
+ * neighboorhood of v.
+ * @param a_list   - pointer to adjacency list structure
+ * @param v        - graph node for which to search 
+ *                   neighborhood.
+ * @param req_index - first index less than one to return
+ *
+ * @return graph_node * - pointer to graph node at req_index
+ */
 graph_node *
-vertex(
+graph_adj_list_vertex(
     adjacency_list      *a_list,
     graph_node          *v,
-    unsigned long       req)
+    unsigned long       req_index)
 {
     struct node         *vertex_node = NULL;
     struct node         *return_node = NULL;
@@ -140,7 +230,7 @@ vertex(
         return NULL;
     }
 
-    return_node = list_retrieve(req, &vertex_node);
+    return_node = list_retrieve(req_index, &vertex_node);
     
     if (!return_node) {
         return NULL;
@@ -148,12 +238,3 @@ vertex(
 
     return ((graph_node *)return_node->value);
 }
-
-
-
-
-
-
-
-
-

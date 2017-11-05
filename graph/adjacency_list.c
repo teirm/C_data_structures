@@ -23,7 +23,6 @@
  *  the link list V[m].
  */
 
-
 #include <ds/debug.h>
 #include  "adjacency_list.h"
 

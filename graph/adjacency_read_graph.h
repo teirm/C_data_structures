@@ -2,5 +2,13 @@
  * adjacency list.
  */
 
-int adj_read_graph(char *file_name);
+#include "adjacency_list.h"
+
+adjacency_list *
+graph_adj_list_initialize_alist(
+    int                             total_vertices);
+
+int
+graph_adj_list_read_graph(
+    char *file_name);
 

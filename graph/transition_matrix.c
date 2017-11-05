@@ -72,5 +72,3 @@ vertex (
 
     return ret_node;
 }
-
-

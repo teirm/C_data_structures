@@ -22,16 +22,11 @@
  *       1 3
  *       2 3
  */
-
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
 
 #include "adjacency_read_graph.h"
-#include "adjacency_list.h"
-
-
 
 adjacency_list *
 graph_adj_list_initialize_alist(
@@ -50,6 +45,7 @@ graph_adj_list_initialize_alist(
     
     return a_list;
 }
+
 
 int
 graph_adj_list_read_graph_file(
@@ -89,7 +85,6 @@ graph_adj_list_read_graph_file(
     if (rc) {
         goto read_graph_error;
     }
-
 #if DEBUG
     printf("Vertices: %d\nEdges: %d\n",
             vertices, edges);
@@ -177,7 +172,7 @@ main(
         return 1;
     }
     
-    adj_read_graph(argv[1]);
+    graph_adj_list_read_graph_file(argv[1]);
 
     return 0;
 }

@@ -150,6 +150,7 @@ graph_adj_list_read_graph_file(
 #endif /* DEBUG */ 
     }
     
+    graph_adj_list_free_alist(a_list, vertices);
     fclose(graph_file);
     return 0;
 

@@ -174,7 +174,11 @@ list_delete_entry(
 	struct node *delete_node;
 	struct node *previous_node;
 
-	if (position > list_get_len(*list_head)) {
+    if (*list_head == NULL) {
+        return NULL;
+    }
+	
+    if (position > list_get_len(*list_head)) {
         return NULL;
     }
 

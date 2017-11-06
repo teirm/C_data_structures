@@ -15,8 +15,7 @@ graph_trans_matrix_free_tmatrix(
 
 t_matrix *
 graph_trans_matrix_init_tmatrix(
-    int                         total_vertices,
-    int                         total_edges);
+    int                         total_vertices);
 
 int
 graph_trans_matrix_add_entry(

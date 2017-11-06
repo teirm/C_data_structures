@@ -37,8 +37,7 @@ graph_trans_matrix_free_tmatrix(
 
 t_matrix *
 graph_trans_matrix_init_tmatrix(
-    int                         total_vertices,
-    int                         total_edges)
+    int                         total_vertices)
 {   
     int i;
     t_matrix                    *graph_matrix = NULL;
@@ -92,7 +91,6 @@ int
 graph_trans_matrix_read_graph_file(
     char                *file_name)
 {   
-    int                 i = 0;
     int                 total_vertices = 0;
     int                 total_edges = 0;
     int                 start_vertex = 0;
@@ -102,7 +100,6 @@ graph_trans_matrix_read_graph_file(
 
     FILE                *graph_file = NULL;
     t_matrix            *graph_matrix = NULL;
-    graph_node          *matrix_entry = NULL;
 
     graph_file = fopen(file_name, "r");
 
@@ -126,7 +123,7 @@ graph_trans_matrix_read_graph_file(
     
     error_state = 3;
     graph_matrix = graph_trans_matrix_init_tmatrix(
-            total_vertices, total_edges); 
+            total_vertices); 
     
     if (!graph_matrix) {
         rc = DS_ENOMEM;

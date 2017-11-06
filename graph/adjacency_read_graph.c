@@ -59,23 +59,60 @@ graph_adj_list_initialize_alist(
     int                             total_vertices)
 {   
     int i;
+    int j;
+    int error_state = 0;
     adjacency_list *a_list = NULL;
+    
+    
     a_list = calloc(1, sizeof *a_list);
-    
     if (a_list == NULL) {
-        return NULL;
+        goto init_alist_error;
     }
-    
+    error_state = 1; 
     a_list->vertices = total_vertices;
+    
+    error_state = 2;
     a_list->list_array = calloc(total_vertices,
             sizeof *(a_list->list_array));
-
+     
+    if (!a_list->list_array) {
+        goto init_alist_error; 
+    }
+    
+    error_state = 3;
     for (i = 0; i < total_vertices; ++i) {
         a_list->list_array[i] = calloc(1,
                 sizeof (a_list->list_array[i]));
+    
+        if (!a_list->list_array[i]) {
+            goto init_alist_error;
+        }
     }
     
     return a_list;
+
+init_alist_error:
+    switch (error_state) {
+        case 3:
+            if (!a_list->list_array[i]) {
+                for (j = i-1; j >= 0; --j) {
+                    free(a_list->list_array[j]);
+                }
+            }
+            free(a_list->list_array);
+            free(a_list);
+            break;
+        case 2:
+            free(a_list->list_array);
+            free(a_list);
+            break;
+        case 1:
+            free(a_list);
+            break;
+        default: /* error_state == 0 */
+            break;
+    }
+    return NULL;
 }
 
 
@@ -160,12 +197,14 @@ read_graph_error:
             fprintf(stderr,
                     "Error in file %s: Failed to add node.\n",
                     file_name);
+            graph_adj_list_free_alist(a_list, vertices);
             fclose(graph_file);
             break;
         case 4:
             fprintf(stderr,
                     "Error in file %s: Too many edge entries.\n",
                     file_name);
+            graph_adj_list_free_alist(a_list, vertices);
             fclose(graph_file);
             break;
         case 3:

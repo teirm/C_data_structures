@@ -40,6 +40,7 @@ graph_trans_matrix_init_tmatrix(
     int                         total_vertices)
 {   
     int i;
+    int j;
     t_matrix                    *graph_matrix = NULL;
     
     graph_matrix = calloc(1, sizeof *graph_matrix);
@@ -60,6 +61,9 @@ graph_trans_matrix_init_tmatrix(
             calloc(total_vertices, sizeof *graph_matrix->matrix[i]);
         
         if (!graph_matrix->matrix[i]) {
+            for (j = i - 1; j >= 0; --j) {
+                free(graph_matrix->matrix[j]);
+            }
             return NULL;
         }
     }
@@ -154,6 +158,8 @@ read_graph_error:
                     Failed to add entry to graph matrix\n",
                     file_name);
             fclose(graph_file);
+            graph_trans_matrix_free_tmatrix(graph_matrix, 
+                    total_vertices);
             break;
         case 3:
             fprintf(stderr, "Error with file %s: \

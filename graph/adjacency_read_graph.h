@@ -6,11 +6,13 @@
 
 adjacency_list *
 graph_adj_list_initialize_alist(
-    int                             total_vertices);
+    int                             total_vertices,
+    int                             track_costs);
 
 int
-graph_adj_list_read_graph(
-    char *file_name);
+graph_adj_list_read_graph_file(
+    char                            *file_name,
+    int                             track_costs);
 
 int
 graph_adj_list_free_alist(

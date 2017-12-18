@@ -192,7 +192,7 @@ int main(
     char                **argv)
 {
     if (argc != 2) {
-        printf("Usage: ./transition_read_graph <file_name>");
+        printf("Usage: ./transition_read_graph <file_name>\n");
         return 1;
     }
     return graph_trans_matrix_read_graph_file(argv[1]);

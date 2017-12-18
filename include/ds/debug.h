@@ -14,6 +14,9 @@ if (x == 1) {\
 }\
 }
 
+#define TRUE    1
+#define FALSE   0
+
 /* Debugging printf info */
 #define DEBUG_INFO __FUNCTION__, __LINE__
 

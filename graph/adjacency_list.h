@@ -1,20 +1,17 @@
 /*
  * Purpose: Basic functions required
  *          for graph data structures
- * Author: Cyrusr
- * Date: 15 October 2017
+ * Author:  Cyrus Ramavarapu
+ * Date:    15 October 2017
  */
 
 #include <stdlib.h>
 #include "../linked_list/linked_list.h" /* These need to be moved */
-
-typedef struct graph_node {
-    unsigned long       index;
-    void                *graph_info;
-} graph_node;
+#include "ds_graph.h"
 
 typedef struct adjacency_list {
     unsigned long       vertices; 
+    int               **cost_matrix;        /* this is an array of costs */ 
     struct node       **list_array;         /* this is an array of lists */
 } adjacency_list;
 

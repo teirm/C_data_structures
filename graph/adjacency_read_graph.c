@@ -25,6 +25,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
+#include <ds/debug.h>
 
 #include "adjacency_read_graph.h"
 
@@ -47,8 +48,15 @@ graph_adj_list_free_alist(
                     &a_list->list_array[vertex]);
         }
     }
-    
     free(a_list->list_array);
+    
+    if (a_list->cost_matrix) {
+        for (vertex = 0; vertex < total_vertices; ++vertex) {
+            free(a_list->cost_matrix[vertex]);
+        }
+        free(a_list->cost_matrix); 
+    } 
+    
     free(a_list);
 
     return 0;
@@ -56,10 +64,12 @@ graph_adj_list_free_alist(
 
 adjacency_list *
 graph_adj_list_initialize_alist(
-    int                             total_vertices)
+    int                             total_vertices,
+    int                             track_costs)
 {   
     int i;
     int j;
+    int k;
     int error_state = 0;
     adjacency_list *a_list = NULL;
     
@@ -89,26 +99,56 @@ graph_adj_list_initialize_alist(
         }
     }
     
+    if (track_costs) { 
+        error_state = 4;
+        a_list->cost_matrix = calloc(total_vertices, 
+                sizeof(int));
+       
+        if (!a_list->cost_matrix) {
+            goto init_alist_error;
+        }
+        
+
+        error_state = 5;
+        for (j = 0; k < total_vertices; ++j) {
+            a_list->cost_matrix[j] = calloc(total_vertices,
+                    sizeof(int));
+
+            if (!a_list->cost_matrix[i]) {
+                goto init_alist_error;
+            }
+
+        }
+    }    
     return a_list;
 
 init_alist_error:
     switch (error_state) {
-        case 3:
-            if (!a_list->list_array[i]) {
-                for (j = i-1; j >= 0; --j) {
-                    free(a_list->list_array[j]);
+        case 5:
+            if (!a_list->cost_matrix[j]) {
+                for (k = j - 1; k >= 0; --k) {
+                    free(a_list->cost_matrix[k]);
                 }
             }
-            free(a_list->list_array);
-            free(a_list);
-            break;
+            /* FALLTHROUGH */
+        case 4:
+            if (a_list->cost_matrix) {
+                free(a_list->cost_matrix);
+            }
+            /* FALLTHROUGH */
+        case 3:
+            if (!a_list->list_array[i]) {
+                for (k = i-1; k >= 0; --k) {
+                    free(a_list->list_array[k]);
+                }
+            }
+            /* FALLTHROUGH */
         case 2:
             free(a_list->list_array);
-            free(a_list);
-            break;
+            /* FALLTHROUGH */
         case 1:
             free(a_list);
-            break;
+            /* FALLTHROUGH */
         default: /* error_state == 0 */
             break;
     }
@@ -118,12 +158,14 @@ init_alist_error:
 
 int
 graph_adj_list_read_graph_file(
-    char *file_name)
+    char                        *file_name,
+    int                         track_costs)
 {
     int vertices = 0;
     int edges = 0;
     int start_vertex = 0;
     int end_vertex = 0;
+    int edge_cost = 0;
     int e_count = 0;
     int rc = 0;
     int error_state = 0;
@@ -149,7 +191,7 @@ graph_adj_list_read_graph_file(
     }
     
     error_state = 3;
-    a_list = graph_adj_list_initialize_alist(vertices); 
+    a_list = graph_adj_list_initialize_alist(vertices, track_costs); 
     if (!a_list) {
         goto read_graph_error;
     }
@@ -173,9 +215,28 @@ graph_adj_list_read_graph_file(
                                      end_vertex,
                                      NULL,
                                      a_list);
+
         if (rc) {
             goto read_graph_error;
         }
+
+        /* The way cost tracking is handled in the file reading seems 
+         * shoe-horned in.  Could be more modular?
+         */
+        if (track_costs) {
+            error_state = 6; 
+            rc = fscanf(graph_file, 
+                        "%d",
+                        &edge_cost);
+            
+            if (rc != 1) {
+                goto read_graph_error;
+            }
+            
+            a_list->cost_matrix[start_vertex][end_vertex] = 
+                edge_cost;
+        }
+
 
         /* It would be a good idea to also check for
          * duplicates and have some policy regarding
@@ -186,7 +247,7 @@ graph_adj_list_read_graph_file(
         printf("%d -> %d\n", start_vertex, end_vertex);
 #endif /* DEBUG */ 
     }
-    
+   
     graph_adj_list_free_alist(a_list, vertices);
     fclose(graph_file);
     return 0;
@@ -237,13 +298,12 @@ main(
     int argc,
     char **argv)
 {
-/*
     if (argc != 2) {
         printf("Usage: ./read_graph <file_name>\n");
         return 1;
     }
-*/    
-    graph_adj_list_read_graph_file("./test_graphs/basic_graph");
+    
+    graph_adj_list_read_graph_file(argv[1], FALSE);
 
     return 0;
 }

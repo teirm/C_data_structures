@@ -6,11 +6,7 @@
  */
 
 #include <stdlib.h>
-
-typedef struct graph_node {
-    unsigned long       index;
-    void                *graph_info;
-} graph_node;
+#include "ds_graph.h"
 
 typedef struct transition_matrix {
     unsigned long       vertices;       

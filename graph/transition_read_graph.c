@@ -29,15 +29,24 @@ graph_trans_matrix_free_tmatrix(
         }
         free(graph_matrix->matrix[row]);
     }
-
     free(graph_matrix->matrix);
+    
+    if (graph_matrix->cost_matrix) { 
+        for (row = 0; row < total_vertices; ++row) {
+            if (graph_matrix->cost_matrix[row]) {
+                free(graph_matrix->cost_matrix[row]);
+            }
+        }
+        free(graph_matrix->cost_matrix);
+    }
     free(graph_matrix);
     return 0;
 }
 
 t_matrix *
 graph_trans_matrix_init_tmatrix(
-    int                         total_vertices)
+    int                         total_vertices,
+    int                         track_costs)
 {   
     int i;
     int j;
@@ -93,12 +102,14 @@ graph_trans_matrix_add_entry(
 
 int
 graph_trans_matrix_read_graph_file(
-    char                *file_name)
+    char                *file_name,
+    int                 track_costs)
 {   
     int                 total_vertices = 0;
     int                 total_edges = 0;
     int                 start_vertex = 0;
     int                 end_vertex = 0;
+    int                 edge_cost = 0; 
     int                 rc = 0;
     int                 error_state = 0;
 
@@ -127,7 +138,7 @@ graph_trans_matrix_read_graph_file(
     
     error_state = 3;
     graph_matrix = graph_trans_matrix_init_tmatrix(
-            total_vertices); 
+            total_vertices, track_costs); 
     
     if (!graph_matrix) {
         rc = DS_ENOMEM;
@@ -144,6 +155,21 @@ graph_trans_matrix_read_graph_file(
                 graph_matrix, start_vertex, end_vertex);
         if (rc) {
             goto read_graph_error;
+        }
+
+        if (track_costs) {
+            error_state = 6;
+            
+            rc = fscanf(graph_file,
+                    "%d",
+                    &edge_cost);
+
+            if (rc != 1) {
+                goto read_graph_error;
+            }
+        
+            graph_matrix->cost_matrix[start_vertex][end_vertex] =
+                edge_cost;
         }
     }
     
@@ -195,7 +221,7 @@ int main(
         printf("Usage: ./transition_read_graph <file_name>\n");
         return 1;
     }
-    return graph_trans_matrix_read_graph_file(argv[1]);
+    return graph_trans_matrix_read_graph_file(argv[1], FALSE);
 }
 
 

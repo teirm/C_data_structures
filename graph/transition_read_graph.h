@@ -15,7 +15,8 @@ graph_trans_matrix_free_tmatrix(
 
 t_matrix *
 graph_trans_matrix_init_tmatrix(
-    int                         total_vertices);
+    int                         total_vertices,
+    int                         track_costs);
 
 int
 graph_trans_matrix_add_entry(
@@ -25,4 +26,5 @@ graph_trans_matrix_add_entry(
 
 int
 graph_trans_matrix_read_graph_file(
-        char *file_name);
+        char    *file_name,
+        int     track_costs);

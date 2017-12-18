@@ -10,6 +10,7 @@
 
 typedef struct transition_matrix {
     unsigned long       vertices;       
+    int                 **cost_matrix; 
     graph_node          ***matrix;
 } t_matrix;
 

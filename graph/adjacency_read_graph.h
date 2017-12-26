@@ -9,7 +9,7 @@ graph_adj_list_initialize_alist(
     int                             total_vertices,
     int                             track_costs);
 
-int
+adjacency_list *
 graph_adj_list_read_graph_file(
     char                            *file_name,
     int                             track_costs);

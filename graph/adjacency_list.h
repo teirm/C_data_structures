@@ -5,6 +5,9 @@
  * Date:    15 October 2017
  */
 
+#ifndef GRAPH_ADJ_LIST_GUARD
+#define GRAPH_ADJ_LIST_GUARD
+
 #include <stdlib.h>
 #include "../linked_list/linked_list.h" /* These need to be moved */
 #include "ds_graph.h"
@@ -121,3 +124,4 @@ graph_node *
 graph_adj_list_create_gnode(
     unsigned long   index,
     void            *graph_info);
+#endif /* GRAPH_ADJ_LIST_GUARD */

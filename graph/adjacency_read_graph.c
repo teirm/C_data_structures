@@ -163,7 +163,7 @@ init_alist_error:
     return NULL;
 }
 
-int
+adjacency_list *
 graph_adj_list_read_graph_file(
     char                        *file_name,
     int                         track_costs)
@@ -182,7 +182,7 @@ graph_adj_list_read_graph_file(
     graph_file = fopen(file_name, "r");
     if (!graph_file) {
         perror("Error");
-        return 1;
+        return NULL;
     }
 
     error_state = 1;
@@ -262,9 +262,8 @@ graph_adj_list_read_graph_file(
 #endif /* DEBUG */
     }
 
-    graph_adj_list_free_alist(a_list, vertices);
     fclose(graph_file);
-    return 0;
+    return a_list;
 
 read_graph_error:
     switch (error_state) {
@@ -304,7 +303,7 @@ read_graph_error:
             perror("Error");
             break;
     }
-    return rc;
+    return NULL;
 }
 
 int

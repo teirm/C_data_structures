@@ -56,7 +56,12 @@ main_dijkstra(
 
     /* always start with the first vertex */
     dijk_info->visited[start_vertex] = 1;
+    /* distance to the start vertex is 0 */
+    dijk_info->distances[start_vertex] = 0;
 
+    return graph_adj_list_dijkstra(
+            a_list,
+            dijk_info);
 }
 
 int
@@ -65,16 +70,38 @@ graph_adj_list_dijkstra(
     dijkstra_info_s     *dijk_info)
 {
     int                 i;
+    int                 new_vertex = 0;
     unsigned long       total_vertices = a_list->vertices;
     for (i = 0; i < total_vertices - 1; ++i) {
-        /* NO-OP */             
+        new_vertex = get_min_unvisited_vertex(dijk_info); 
+        dijk_info->visited[new_vertex] = 1;
+        update_distances(new_vertex, a_list, dijk_info);
     }
-
+    
+    display_results(dijk_info);
+    
     return 0;
 }
 
-int
-update_distances_from_difference(
+void
+display_results(
+    dijkstra_info_s     *dijk_info)
+{
+    int                 i;
+
+    printf("\n----------------\n");
+    printf("Results:");    
+    printf("\n----------------\n");
+    printf("Vertex\t\tCost\n");
+    
+    for (i = 0; i < dijk_info->vertices; ++i) {
+        printf("%d\t\t%d\n",
+                i, dijk_info->distances[i]);
+    }
+}
+
+void
+update_distances(
     int                 new_vertex,
     adjacency_list      *a_list,
     dijkstra_info_s     *dijk_info)
@@ -84,7 +111,6 @@ update_distances_from_difference(
 
     for (i = 0; i < total_vertices - 1; ++i) {
         if (!dijk_info->visited[i]) {
-            /* NOTE THIS WILL CREATE INT OVERFLOW ISSUES */ 
             dijk_info->distances[i] = min(dijk_info->distances[i], 
                     dijk_info->distances[i] + a_list->cost_matrix[new_vertex][i]);
         }
@@ -97,7 +123,7 @@ get_min_unvisited_vertex(
 {
     int                 i;
     int                 min_vertex = 0; 
-    int                 min_dist = INT_MAX;
+    int                 min_dist = COST_MAX;
     unsigned long       total_vertices = dijk_info->vertices; 
    
     /* Since we will find a vertex that a min weight,
@@ -113,15 +139,13 @@ get_min_unvisited_vertex(
     return min_vertex;
 }
 
-
-
 int
 main(
     int         argc,
     char        **argv)
 {
-    if (argc != 4) {
-        printf("Usage: ./dijkstra <graph_file> <start_vertex>");
+    if (argc != 3) {
+        printf("Usage: ./dijkstra <graph_file> <start_vertex>\n");
         return 1;
     }
 

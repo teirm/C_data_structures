@@ -7,15 +7,16 @@
  *       FIRST LINE is the NUMBER OF VERTICES
  *       SECOND LINE is the NUMBER OF EDGES
  *       REMAINING LINES are the EDGES as
- *       vertex pairs.
+ *       vertex pairs with OPTIONAL edge weights.
  * Note: The vertex pairs must be in order with
  *       respect to the second vertex until issue
- *       #3 is resolved ( Link list has no sorting
+ *       #3 is resolved (Linked list has no sorting
  *       mechanism).
  * Note: Weights for the edges can be placed in a
  *       third column given that the track_costs
  *       flag is true.
- 
+ * Note: Max cost is set to 9999.  All edge weights
+ *       should be less than this value.
  *       This means that the input file must be
  *       in the format of 
  *       3
@@ -32,8 +33,7 @@
 
 #include "adjacency_read_graph.h"
 
-#define DEBUG 1
-
+#define DEBUG 0
 
 int
 graph_adj_list_free_alist(
@@ -111,7 +111,7 @@ graph_adj_list_initialize_alist(
     if (track_costs) {
         error_state = 4;
         a_list->cost_matrix = calloc(total_vertices,
-                sizeof(int));
+                sizeof(int*));
 
         if (!a_list->cost_matrix) {
             goto init_alist_error;
@@ -123,7 +123,7 @@ graph_adj_list_initialize_alist(
             a_list->cost_matrix[j] = calloc(total_vertices,
                     sizeof(int));
 
-            if (!a_list->cost_matrix[i]) {
+            if (!a_list->cost_matrix[j]) {
                 goto init_alist_error;
             }
 
@@ -132,13 +132,15 @@ graph_adj_list_initialize_alist(
         for (i = 0; i < total_vertices; ++i) {
             for (j = 0; j < total_vertices; ++j) {
                 a_list->cost_matrix[i][j] = 
-                    UNITIALIZED_COST;
+                   COST_MAX;
             }
         }
     }
     return a_list;
 
 init_alist_error:
+    fprintf(stderr, "Error %d during %s\n",
+            error_state, __func__);
     switch (error_state) {
         case 5:
             if (!a_list->cost_matrix[j]) {
@@ -244,7 +246,7 @@ graph_adj_list_read_graph_file(
                         "%d",
                         &edge_cost);
 
-            if (rc != 1) {
+            if (rc != 1 || edge_cost >= COST_MAX) {
                 goto read_graph_error;
             }
 
@@ -313,21 +315,3 @@ read_graph_error:
     }
     return NULL;
 }
-
-int
-main(
-    int argc,
-    char **argv)
-{
-    if (argc != 3) {
-        printf("Usage: ./read_graph <file_name> <cost_flag>\n");
-        return 1;
-    }
-
-    graph_adj_list_read_graph_file(argv[1], atoi(argv[2]));
-
-    return 0;
-}
-
-
-

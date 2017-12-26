@@ -37,15 +37,13 @@ int
 get_min_unvisited_vertex(
     dijkstra_info_s     *dijk_info);
 
-int
-update_distances_from_difference(
+void
+update_distances(
     int                 new_vertex,
     adjacency_list      *a_list,
     dijkstra_info_s     *dijk_info);
 
-
-
-int
+void
 display_results(
     dijkstra_info_s    *dijk_info);
 

@@ -2,7 +2,11 @@
  * adjacency list.
  */
 
+#include <limits.h>
+
 #include "adjacency_list.h"
+
+#define UNITIALIZED_COST INT_MAX  
 
 adjacency_list *
 graph_adj_list_initialize_alist(

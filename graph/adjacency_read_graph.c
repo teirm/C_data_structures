@@ -34,6 +34,7 @@
 
 #define DEBUG 1
 
+
 int
 graph_adj_list_free_alist(
     adjacency_list                  *a_list,
@@ -126,6 +127,13 @@ graph_adj_list_initialize_alist(
                 goto init_alist_error;
             }
 
+        }
+    
+        for (i = 0; i < total_vertices; ++i) {
+            for (j = 0; j < total_vertices; ++j) {
+                a_list->cost_matrix[i][j] = 
+                    UNITIALIZED_COST;
+            }
         }
     }
     return a_list;

@@ -4,7 +4,13 @@ Purpose: Linked list data structure
 */
 
 #include <stdlib.h>
+#include <stdio.h>
+
+#include <ds/debug.h>
+
 #include "linked_list.h"
+
+#define LINKED_LIST_DEBUG 1
 
 int 
 list_get_len(
@@ -161,8 +167,14 @@ list_append(
     struct node         *entry,
     struct node         **list_head)
 {
-    int list_length = list_get_len(*list_head);
 
+    int list_length = list_get_len(*list_head);
+#ifdef LINKED_LIST_DEBUG
+    printf("[%s:%d] list_length=%d\n",
+            DEBUG_INFO, list_length);
+#endif /* LINKED_LIST_DEBUG */
+
+    
     return list_insert(entry, list_length, list_head);
 }
 

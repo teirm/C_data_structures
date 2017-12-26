@@ -33,7 +33,7 @@
 
 #include "adjacency_read_graph.h"
 
-#define ADJ_READ_GRAPH_DEBUG 0
+#define ADJ_READ_GRAPH_DEBUG 1
 
 int
 graph_adj_list_free_alist(
@@ -98,18 +98,9 @@ graph_adj_list_initialize_alist(
         goto init_alist_error;
     }
 
-    error_state = 3;
-    for (i = 0; i < total_vertices; ++i) {
-        a_list->list_array[i] = calloc(1,
-                sizeof (a_list->list_array[i]));
-
-        if (!a_list->list_array[i]) {
-            goto init_alist_error;
-        }
-    }
-
     if (track_costs) {
-        error_state = 4;
+
+        error_state = 3;
         a_list->cost_matrix = calloc(total_vertices,
                 sizeof(int*));
 
@@ -118,7 +109,7 @@ graph_adj_list_initialize_alist(
         }
 
 
-        error_state = 5;
+        error_state = 4;
         for (j = 0; j < total_vertices; ++j) {
             a_list->cost_matrix[j] = calloc(total_vertices,
                     sizeof(int));
@@ -142,23 +133,16 @@ init_alist_error:
     fprintf(stderr, "Error %d during %s\n",
             error_state, __func__);
     switch (error_state) {
-        case 5:
+        case 4:
             if (!a_list->cost_matrix[j]) {
                 for (k = j - 1; k >= 0; --k) {
                     free(a_list->cost_matrix[k]);
                 }
             }
             /* FALLTHROUGH */
-        case 4:
+        case 3:
             if (a_list->cost_matrix) {
                 free(a_list->cost_matrix);
-            }
-            /* FALLTHROUGH */
-        case 3:
-            if (!a_list->list_array[i]) {
-                for (k = i-1; k >= 0; --k) {
-                    free(a_list->list_array[k]);
-                }
             }
             /* FALLTHROUGH */
         case 2:
@@ -241,6 +225,10 @@ graph_adj_list_read_graph_file(
         }
 
         if (track_costs) {
+#ifdef ADJ_READ_GRAPH_DEBUG
+        printf("[%s:%d] tracking costs = %d\n",
+                DEBUG_INFO, track_costs);
+#endif /* ADJ_READ_GRAPH_DEBUG */
             error_state = 6;
             rc = fscanf(graph_file,
                         "%d",

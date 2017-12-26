@@ -22,9 +22,12 @@
  *  To determine the neighborhod of Vertex m examine
  *  the link list V[m].
  */
+#include <stdio.h>
 
 #include <ds/debug.h>
 #include  "adjacency_list.h"
+
+#define ADJ_LIST_DEBUG 1
 
 /* graph_adj_list_node_comp
  *
@@ -105,15 +108,28 @@ graph_adj_list_add_node(
     if (new_graph_node == NULL) {
         return DS_ENOMEM;
     }
-    
+#ifdef ADJ_LIST_DEBUG
+    printf("[%s:%d] a_list->list_array[start_vertex]=%p\n",
+            DEBUG_INFO, 
+            a_list->list_array[start_vertex]);
+#endif /* ADJ_LIST_DEBUG */
+
+
     struct node *new_list_node = 
         calloc(1, sizeof *new_list_node);
     if (new_list_node == NULL) {
         return DS_ENOMEM;
     }
-    
+
     new_list_node->value =
         new_graph_node;
+
+#ifdef ADJ_LIST_DEBUG
+    printf("[%s:%d] start_vertex: %d end_vertex: %d \
+            new_list_node->value: %p\n",
+            DEBUG_INFO, start_vertex, end_vertex,
+            new_list_node->value);
+#endif /* ADJ_LIST_DEBUG */ 
 
     return list_append(new_list_node,
                      &(a_list->list_array[start_vertex]));

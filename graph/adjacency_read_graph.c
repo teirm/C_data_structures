@@ -1,26 +1,29 @@
-/* Purpose: A program to read a graph 
+/* Purpose: A program to read a graph
  *          into an adjacency list.
  * Author:  Cyrus
  * Date:    22 October 2017
  *
  * Note: FILE FORMAT for graphs
- *       FIRST LINE is the NUMBER OF VERTICES 
+ *       FIRST LINE is the NUMBER OF VERTICES
  *       SECOND LINE is the NUMBER OF EDGES
- *       REMAINING LINES are the EDGES as 
+ *       REMAINING LINES are the EDGES as
  *       vertex pairs.
  * Note: The vertex pairs must be in order with
  *       respect to the second vertex until issue
  *       #3 is resolved ( Link list has no sorting
  *       mechanism).
- *      
+ * Note: Weights for the edges can be placed in a
+ *       third column given that the track_costs
+ *       flag is true.
+ 
  *       This means that the input file must be
  *       in the format of 
  *       3
  *       2
- *       1 2 
- *       2 1
- *       1 3
- *       2 3
+ *       1 2 1  
+ *       2 1 3
+ *       1 3 4
+ *       2 3 5
  */
 #include <stdlib.h>
 #include <stdio.h>
@@ -28,6 +31,8 @@
 #include <ds/debug.h>
 
 #include "adjacency_read_graph.h"
+
+#define DEBUG 1
 
 int
 graph_adj_list_free_alist(
@@ -43,20 +48,23 @@ graph_adj_list_free_alist(
         while (current_node) {
             free(current_node->value);
             free(current_node);
-            
+
             current_node = list_delete_entry(0,
                     &a_list->list_array[vertex]);
         }
     }
     free(a_list->list_array);
-    
+
+    /* Cost matrix is only allocated if
+     * graph is weighted.
+     */
     if (a_list->cost_matrix) {
         for (vertex = 0; vertex < total_vertices; ++vertex) {
             free(a_list->cost_matrix[vertex]);
         }
-        free(a_list->cost_matrix); 
-    } 
-    
+        free(a_list->cost_matrix);
+    }
+
     free(a_list);
 
     return 0;
@@ -66,51 +74,51 @@ adjacency_list *
 graph_adj_list_initialize_alist(
     int                             total_vertices,
     int                             track_costs)
-{   
+{
     int i;
     int j;
     int k;
     int error_state = 0;
     adjacency_list *a_list = NULL;
-    
-    
+
+
     a_list = calloc(1, sizeof *a_list);
     if (a_list == NULL) {
         goto init_alist_error;
     }
-    error_state = 1; 
+    error_state = 1;
     a_list->vertices = total_vertices;
-    
+
     error_state = 2;
     a_list->list_array = calloc(total_vertices,
             sizeof *(a_list->list_array));
-     
+
     if (!a_list->list_array) {
-        goto init_alist_error; 
+        goto init_alist_error;
     }
-    
+
     error_state = 3;
     for (i = 0; i < total_vertices; ++i) {
         a_list->list_array[i] = calloc(1,
                 sizeof (a_list->list_array[i]));
-    
+
         if (!a_list->list_array[i]) {
             goto init_alist_error;
         }
     }
-    
-    if (track_costs) { 
+
+    if (track_costs) {
         error_state = 4;
-        a_list->cost_matrix = calloc(total_vertices, 
+        a_list->cost_matrix = calloc(total_vertices,
                 sizeof(int));
-       
+
         if (!a_list->cost_matrix) {
             goto init_alist_error;
         }
-        
+
 
         error_state = 5;
-        for (j = 0; k < total_vertices; ++j) {
+        for (j = 0; j < total_vertices; ++j) {
             a_list->cost_matrix[j] = calloc(total_vertices,
                     sizeof(int));
 
@@ -119,7 +127,7 @@ graph_adj_list_initialize_alist(
             }
 
         }
-    }    
+    }
     return a_list;
 
 init_alist_error:
@@ -155,7 +163,6 @@ init_alist_error:
     return NULL;
 }
 
-
 int
 graph_adj_list_read_graph_file(
     char                        *file_name,
@@ -177,7 +184,7 @@ graph_adj_list_read_graph_file(
         perror("Error");
         return 1;
     }
-   
+
     error_state = 1;
     rc = fscanf(graph_file, "%d", &vertices);
     if (rc != 1) {
@@ -189,9 +196,12 @@ graph_adj_list_read_graph_file(
     if (rc != 1) {
         goto read_graph_error;
     }
-    
+
     error_state = 3;
-    a_list = graph_adj_list_initialize_alist(vertices, track_costs); 
+    a_list = graph_adj_list_initialize_alist(
+            vertices,
+            track_costs);
+
     if (!a_list) {
         goto read_graph_error;
     }
@@ -204,11 +214,11 @@ graph_adj_list_read_graph_file(
                   "%d %d",
                   &start_vertex,
                   &end_vertex) == 2) {
-        
+
         e_count++;
         error_state = 4;
         if (e_count > edges) {
-            goto read_graph_error; 
+            goto read_graph_error;
         }
         error_state = 5;
         rc = graph_adj_list_add_node(start_vertex,
@@ -220,23 +230,27 @@ graph_adj_list_read_graph_file(
             goto read_graph_error;
         }
 
-        /* The way cost tracking is handled in the file reading seems 
-         * shoe-horned in.  Could be more modular?
-         */
         if (track_costs) {
-            error_state = 6; 
-            rc = fscanf(graph_file, 
+            error_state = 6;
+            rc = fscanf(graph_file,
                         "%d",
                         &edge_cost);
-            
+
             if (rc != 1) {
                 goto read_graph_error;
             }
-            
-            a_list->cost_matrix[start_vertex][end_vertex] = 
-                edge_cost;
-        }
 
+            a_list->cost_matrix[start_vertex][end_vertex] =
+                edge_cost;
+
+#if DEBUG
+            /* C(start_vertex, end_vertex) = edge cost */
+            printf("C(%d,%d)=%d\n",
+                    start_vertex,
+                    end_vertex,
+                    edge_cost);
+#endif /* DEBUG */
+        }
 
         /* It would be a good idea to also check for
          * duplicates and have some policy regarding
@@ -245,9 +259,9 @@ graph_adj_list_read_graph_file(
          */
 #if DEBUG
         printf("%d -> %d\n", start_vertex, end_vertex);
-#endif /* DEBUG */ 
+#endif /* DEBUG */
     }
-   
+
     graph_adj_list_free_alist(a_list, vertices);
     fclose(graph_file);
     return 0;
@@ -273,7 +287,7 @@ read_graph_error:
                     "Error in file %s: Failed to create adjacency list.\n",
                     file_name);
             fclose(graph_file);
-            break; 
+            break;
         case 2:
             fprintf(stderr,
                     "Error in file %s: Failed to read edges.\n",
@@ -298,12 +312,12 @@ main(
     int argc,
     char **argv)
 {
-    if (argc != 2) {
-        printf("Usage: ./read_graph <file_name>\n");
+    if (argc != 3) {
+        printf("Usage: ./read_graph <file_name> <cost_flag>\n");
         return 1;
     }
-    
-    graph_adj_list_read_graph_file(argv[1], FALSE);
+
+    graph_adj_list_read_graph_file(argv[1], atoi(argv[2]));
 
     return 0;
 }

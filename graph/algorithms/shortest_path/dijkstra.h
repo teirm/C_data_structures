@@ -12,9 +12,9 @@
 #define min(x,y) (x < y ? x : y)
 
 typedef struct dijkstra_info_s {
-    unsigned int    vertices;
-    unsigned int    *visited;
-    unsigned int    *distances;
+    int    vertices;
+    int    *visited;
+    int    *distances;
 } dijkstra_info_s;
 
 int

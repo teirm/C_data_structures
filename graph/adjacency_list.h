@@ -13,7 +13,7 @@
 #include "ds_graph.h"
 
 typedef struct adjacency_list {
-    unsigned long       vertices; 
+    int               vertices; 
     int               **cost_matrix;        /* this is an array of costs */ 
     struct node       **list_array;         /* this is an array of lists */
 } adjacency_list;

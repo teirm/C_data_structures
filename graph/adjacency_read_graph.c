@@ -33,14 +33,14 @@
 
 #include "adjacency_read_graph.h"
 
-#define DEBUG 0
+#define ADJ_READ_GRAPH_DEBUG 0
 
 int
 graph_adj_list_free_alist(
-    adjacency_list                  *a_list,
-    int                             total_vertices)
+    adjacency_list                  *a_list)
 {
     int                             vertex;
+    int                             total_vertices = a_list->vertices; 
     struct node                     *current_node = NULL;
 
     for (vertex = 0; vertex < total_vertices; ++vertex) {
@@ -216,10 +216,10 @@ graph_adj_list_read_graph_file(
         goto read_graph_error;
     }
 
-#if DEBUG
+#if ADJ_READ_GRAPH_DEBUG
     printf("Vertices: %d\nEdges: %d\n",
             vertices, edges);
-#endif /* DEBUG */
+#endif /* ADJ_READ_GRAPH_DEBUG */
     while (fscanf(graph_file,
                   "%d %d",
                   &start_vertex,
@@ -253,13 +253,13 @@ graph_adj_list_read_graph_file(
             a_list->cost_matrix[start_vertex][end_vertex] =
                 edge_cost;
 
-#if DEBUG
+#if ADJ_READ_GRAPH_DEBUG
             /* C(start_vertex, end_vertex) = edge cost */
             printf("C(%d,%d)=%d\n",
                     start_vertex,
                     end_vertex,
                     edge_cost);
-#endif /* DEBUG */
+#endif /* ADJ_READ_GRAPH_DEBUG */
         }
 
         /* It would be a good idea to also check for
@@ -267,9 +267,9 @@ graph_adj_list_read_graph_file(
          * how to handle them.  For the time being
          * I will not be dealing with the multigraphs.
          */
-#if DEBUG
+#if ADJ_READ_GRAPH_DEBUG
         printf("%d -> %d\n", start_vertex, end_vertex);
-#endif /* DEBUG */
+#endif /* ADJ_READ_GRAPH_DEBUG */
     }
 
     fclose(graph_file);
@@ -281,14 +281,14 @@ read_graph_error:
             fprintf(stderr,
                     "Error in file %s: Failed to add node.\n",
                     file_name);
-            graph_adj_list_free_alist(a_list, vertices);
+            graph_adj_list_free_alist(a_list);
             fclose(graph_file);
             break;
         case 4:
             fprintf(stderr,
                     "Error in file %s: Too many edge entries.\n",
                     file_name);
-            graph_adj_list_free_alist(a_list, vertices);
+            graph_adj_list_free_alist(a_list);
             fclose(graph_file);
             break;
         case 3:

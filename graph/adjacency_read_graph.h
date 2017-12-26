@@ -18,5 +18,4 @@ graph_adj_list_read_graph_file(
 
 int
 graph_adj_list_free_alist(
-    adjacency_list                  *a_list,
-    int                             total_vertices);
+    adjacency_list                  *a_list);

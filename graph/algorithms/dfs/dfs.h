@@ -14,8 +14,15 @@ typedef struct dfs_info_s {
 } dfs_info_s;
 
 int
-graph_adj_list_dfs(
-    int                 start_vertex, 
+graph_adj_list_run_dfs(
+    int                 vertex, 
+    adjacency_list      *a_list,
+    dfs_info_s          *dfs_info);
+
+
+int
+graph_adj_list_start_dfs(
+    int                  start_vertex,
     adjacency_list      *a_list,
     dfs_info_s          *dfs_info);
 

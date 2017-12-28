@@ -12,9 +12,26 @@ graph_adj_list_initialize_alist(
     int                             track_costs);
 
 adjacency_list *
-graph_adj_list_read_graph_file(
-    char                            *file_name,
-    int                             track_costs);
+graph_adj_list_read_directed_graph_file(
+    char                            *file_names);
+
+adjacency_list *
+graph_adj_list_read_weighted_directed_graph_file(
+    char                            *file_name);
+
+adjacency_list *
+graph_adj_list_read_undirected_graph_file(
+    char                            *file_name);
+
+adjacency_list *
+graph_adj_list_read_weighted_undirected_graph_file(
+    char                            *file_name);
+
+adjacency_list *
+graph_adj_list_generic_read_graph_file(
+    int                             weighted,
+    int                             undirected,
+    char                            *file_name);
 
 int
 graph_adj_list_free_alist(

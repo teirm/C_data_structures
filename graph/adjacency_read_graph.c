@@ -158,9 +158,47 @@ init_alist_error:
 }
 
 adjacency_list *
-graph_adj_list_read_graph_file(
-    char                        *file_name,
-    int                         track_costs)
+graph_adj_list_read_undirected_graph_file(
+    char                            *file_name)
+{
+    return graph_adj_list_generic_read_graph_file(FALSE,
+            TRUE,
+            file_name);
+}
+
+
+adjacency_list *
+graph_adj_list_read_weighted_undirected_graph_file(
+    char                            *file_name)
+{
+    return graph_adj_list_generic_read_graph_file(TRUE,
+            TRUE,
+            file_name);
+}
+
+adjacency_list *
+graph_adj_list_read_directed_weighted_graph_file(
+    char                            *file_name)
+{
+    return graph_adj_list_generic_read_graph_file(TRUE,
+            FALSE,
+            file_name);
+}
+
+adjacency_list *
+graph_adj_list_read_directed_graph_file(
+    char                            *file_name)
+{
+    return graph_adj_list_generic_read_graph_file(FALSE,
+            FALSE,
+            file_name);
+}
+
+adjacency_list *
+graph_adj_list_generic_read_graph_file(
+    int                                 weighted,
+    int                                 undirected,
+    char                                *file_name)
 {
     int vertices = 0;
     int edges = 0;
@@ -194,7 +232,7 @@ graph_adj_list_read_graph_file(
     error_state = 3;
     a_list = graph_adj_list_initialize_alist(
             vertices,
-            track_costs);
+            weighted);
 
     if (!a_list) {
         goto read_graph_error;
@@ -204,67 +242,101 @@ graph_adj_list_read_graph_file(
     printf("Vertices: %d\nEdges: %d\n",
             vertices, edges);
 #endif /* ADJ_READ_GRAPH_DEBUG */
-    while (fscanf(graph_file,
-                  "%d %d",
-                  &start_vertex,
-                  &end_vertex) == 2) {
 
-        e_count++;
-        error_state = 4;
-        if (e_count > edges) {
-            goto read_graph_error;
-        }
-        error_state = 5;
-        rc = graph_adj_list_add_node(start_vertex,
-                                     end_vertex,
-                                     NULL,
-                                     a_list);
+    if (weighted) {
+        while (fscanf(graph_file,
+                      "%d %d %d",
+                      &start_vertex,
+                      &end_vertex,
+                      &edge_cost) == 3) {
 
-        if (rc) {
-            goto read_graph_error;
-        }
-
-        if (track_costs) {
-#ifdef ADJ_READ_GRAPH_DEBUG
-        printf("[%s:%d] tracking costs = %d\n",
-                DEBUG_INFO, track_costs);
-#endif /* ADJ_READ_GRAPH_DEBUG */
-            error_state = 6;
-            rc = fscanf(graph_file,
-                        "%d",
-                        &edge_cost);
-
-            if (rc != 1 || edge_cost >= COST_MAX) {
+            e_count++;
+            error_state = 4;
+            if (e_count > edges) {
+                goto read_graph_error;
+            }
+            error_state = 5;
+            rc = graph_adj_list_add_node(start_vertex,
+                                         end_vertex,
+                                         NULL,
+                                         a_list);
+            if (rc) {
                 goto read_graph_error;
             }
 
+            if (undirected) {
+                rc = graph_adj_list_add_node(end_vertex,
+                                             start_vertex,
+                                             NULL,
+                                             a_list);
+
+                if (rc) {
+                    goto read_graph_error;
+                }
+            }
+
+            error_state = 6;
+            if (edge_cost >= COST_MAX) {
+                goto read_graph_error;
+            }
             a_list->cost_matrix[start_vertex][end_vertex] =
                 edge_cost;
-
+            
+            if (undirected) {
+                a_list->cost_matrix[end_vertex][start_vertex] = 
+                    edge_cost;
+            }
 #if ADJ_READ_GRAPH_DEBUG
-            /* C(start_vertex, end_vertex) = edge cost */
-            printf("C(%d,%d)=%d\n",
-                    start_vertex,
-                    end_vertex,
-                    edge_cost);
+            printf("%d -> %d\n", start_vertex, end_vertex);
+#endif /* ADJ_READ_GRAPH_DEBUG */
+        } 
+    } else {
+        while (fscanf(graph_file,
+                      "%d %d",
+                      &start_vertex,
+                      &end_vertex) == 3) {
+
+            e_count++;
+            error_state = 4;
+            if (e_count > edges) {
+                goto read_graph_error;
+            }
+            error_state = 5;
+            rc = graph_adj_list_add_node(start_vertex,
+                                         end_vertex,
+                                         NULL,
+                                         a_list);
+            if (rc) {
+                goto read_graph_error;
+            }
+
+            if (undirected) {
+                rc = graph_adj_list_add_node(end_vertex,
+                                             start_vertex,
+                                             NULL,
+                                             a_list);
+
+                if (rc) {
+                    goto read_graph_error;
+                }
+            }
+#if ADJ_READ_GRAPH_DEBUG
+            printf("%d -> %d\n", start_vertex, end_vertex);
 #endif /* ADJ_READ_GRAPH_DEBUG */
         }
-
-        /* It would be a good idea to also check for
-         * duplicates and have some policy regarding
-         * how to handle them.  For the time being
-         * I will not be dealing with the multigraphs.
-         */
-#if ADJ_READ_GRAPH_DEBUG
-        printf("%d -> %d\n", start_vertex, end_vertex);
-#endif /* ADJ_READ_GRAPH_DEBUG */
     }
-
     fclose(graph_file);
     return a_list;
 
 read_graph_error:
     switch (error_state) {
+        case 6:
+            fprintf(stderr,
+                    "Erorr in file %s: Edge cost greater than %d.\n",
+                    file_name, COST_MAX);
+            graph_adj_list_free_alist(a_list);
+            fclose(graph_file);
+            break;
         case 5:
             fprintf(stderr,
                     "Error in file %s: Failed to add node.\n",
@@ -303,3 +375,6 @@ read_graph_error:
     }
     return NULL;
 }
+
+
+

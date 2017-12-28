@@ -26,9 +26,8 @@ main_dijkstra(
     adjacency_list      *a_list = NULL; 
     dijkstra_info_s     *dijk_info = NULL;        
     
-    a_list = graph_adj_list_read_graph_file(
-                file_name,
-                TRUE);
+    a_list = graph_adj_list_read_weighted_directed_graph_file(
+                file_name);
 
     if (a_list == NULL) {
         return 1;

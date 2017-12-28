@@ -93,8 +93,8 @@ main(
    
 
     error_state = 1;
-    a_list = graph_adj_list_read_graph_file(
-            argv[1], FALSE);
+    a_list = graph_adj_list_read_directed_graph_file(
+            argv[1]);
 
     
     if (a_list == NULL) {
@@ -123,7 +123,6 @@ main(
     }
     
     graph_adj_list_start_dfs(start_vertex, a_list, dfs_info);
-   
     return 0;
 
 /* Rollback allocations in case of any errors */
@@ -140,7 +139,6 @@ init_error:
                 error_state);
             break;
     }
-
     return error_state;
 }
 

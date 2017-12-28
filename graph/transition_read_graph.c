@@ -100,10 +100,43 @@ graph_trans_matrix_add_entry(
     return 0;
 }
 
-int
-graph_trans_matrix_read_graph_file(
-    char                *file_name,
-    int                 track_costs)
+t_matrix *
+graph_trans_matrix_read_directed_graph_file(
+    char                    *file_name)
+{
+    return graph_trans_matrix_generic_read_graph_file(
+            FALSE, FALSE, file_name);
+}
+
+t_matrix *
+graph_trans_matrix_read_weighted_directed_graph_file(
+    char                    *file_name)
+{
+    return graph_trans_matrix_generic_read_graph_file(
+            TRUE, FALSE, file_name);
+}
+
+t_matrix *
+graph_trans_matrix_read_undirected_graph_file(
+    char                    *file_name)
+{
+    return graph_trans_matrix_generic_read_graph_file(
+            FALSE, TRUE, file_name);
+}
+
+t_matrix *
+graph_trans_matrix_read_weighted_undirected_graph_file(
+    char                    *file_name)
+{
+    return graph_trans_matrix_generic_read_graph_file(
+            TRUE, TRUE, file_name);
+}
+
+t_matrix *
+graph_trans_matrix_generic_read_graph_file(
+    int                 weighted,
+    int                 undirected,
+    char                *file_name)
 {   
     int                 total_vertices = 0;
     int                 total_edges = 0;
@@ -116,29 +149,27 @@ graph_trans_matrix_read_graph_file(
     FILE                *graph_file = NULL;
     t_matrix            *graph_matrix = NULL;
 
+    error_state = 1; 
     graph_file = fopen(file_name, "r");
-
-
     if (!graph_file) {
-        perror("Error");
-        return errno;
+        goto read_graph_error;     
     }
 
-    error_state = 1; 
+    error_state = 2; 
     rc = fscanf(graph_file, "%d", &total_vertices);
     if (rc != 1) {
         goto read_graph_error;
     } 
     
-    error_state = 2;
+    error_state = 3;
     rc = fscanf(graph_file, "%d", &total_edges);
     if (rc != 1) {
         goto read_graph_error;
     } 
     
-    error_state = 3;
+    error_state = 4;
     graph_matrix = graph_trans_matrix_init_tmatrix(
-            total_vertices, track_costs); 
+            total_vertices, weighted); 
     
     if (!graph_matrix) {
         rc = DS_ENOMEM;
@@ -146,40 +177,75 @@ graph_trans_matrix_read_graph_file(
     }
 
 
-    error_state = 4;
-    while (fscanf(graph_file,
-                "%d %d",
-                &start_vertex,
-                &end_vertex) == 2) {
-        rc = graph_trans_matrix_add_entry(
-                graph_matrix, start_vertex, end_vertex);
-        if (rc) {
-            goto read_graph_error;
-        }
-
-        if (track_costs) {
-            error_state = 6;
-            
-            rc = fscanf(graph_file,
-                    "%d",
-                    &edge_cost);
-
-            if (rc != 1) {
+    error_state = 5;
+    
+    if (weighted) {
+        while (fscanf(graph_file,
+                    "%d %d %d",
+                    &start_vertex,
+                    &end_vertex,
+                    &edge_cost) == 3) {
+            rc = graph_trans_matrix_add_entry(
+                    graph_matrix, start_vertex, end_vertex);
+            if (rc) {
                 goto read_graph_error;
             }
-        
+
+            if (undirected) {
+                rc = graph_trans_matrix_add_entry(
+                        graph_matrix, end_vertex, start_vertex);
+            
+                if (rc) {
+                    goto read_graph_error;
+                }
+            }
+            
+            error_state = 6;
+            if (edge_cost >= COST_MAX) {
+                goto read_graph_error;
+            }
+
             graph_matrix->cost_matrix[start_vertex][end_vertex] =
                 edge_cost;
+            if (undirected) {
+                graph_matrix->cost_matrix[end_vertex][start_vertex] = 
+                    edge_cost;
+            }
+        }
+    } else { 
+        while (fscanf(graph_file,
+                    "%d %d",
+                    &start_vertex,
+                    &end_vertex) == 2) {
+            rc = graph_trans_matrix_add_entry(
+                    graph_matrix, start_vertex, end_vertex);
+            if (rc) {
+                goto read_graph_error;
+            }
+
+            if (undirected) {
+                rc = graph_trans_matrix_add_entry(
+                        graph_matrix, end_vertex, start_vertex);
+                if (rc) {
+                    goto read_graph_error;
+                }
+            }
         }
     }
-    
-    fclose(graph_file);
-    graph_trans_matrix_free_tmatrix(graph_matrix,
-            total_vertices);
-    return 0;
+
+    return graph_matrix;
+
 read_graph_error:
     switch (error_state) {
-        case 4:
+        case 6:
+            fprintf(stderr, "Error with file %s: \
+                    Edge cost greater than max (%d)\n",
+                    file_name, COST_MAX);
+            fclose(graph_file);
+            graph_trans_matrix_free_tmatrix(graph_matrix,
+                    total_vertices);
+            break;
+        case 5:
             fprintf(stderr, "Error with file %s: \
                     Failed to add entry to graph matrix\n",
                     file_name);
@@ -187,41 +253,29 @@ read_graph_error:
             graph_trans_matrix_free_tmatrix(graph_matrix, 
                     total_vertices);
             break;
-        case 3:
+        case 4:
             fprintf(stderr, "Error with file %s: \
                     Failed to init graph matrix\n",
                     file_name);
             fclose(graph_file);
             break;
-        case 2:
+        case 3:
             fprintf(stderr, "Error with file %s: \
                     Failed to read total edges\n",
                     file_name);
             fclose(graph_file);
             break;
-        case 1:
+        case 2:
             fprintf(stderr, "Error with file %s: \
                     Failed to read total vertices\n",
                     file_name);
             fclose(graph_file);
             break;
-        default: /* error_state == 0 */
+        case 1: /* error_state == 0 */
             perror("Error");
             break;
     }
-    return rc;
-
-}
-
-int main(
-    int                 argc,
-    char                **argv)
-{
-    if (argc != 2) {
-        printf("Usage: ./transition_read_graph <file_name>\n");
-        return 1;
-    }
-    return graph_trans_matrix_read_graph_file(argv[1], FALSE);
+    return NULL;
 }
 
 

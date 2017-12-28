@@ -8,6 +8,8 @@
 
 #include "transition_matrix.h"
 
+#define COST_MAX 9999
+
 int
 graph_trans_matrix_free_tmatrix(
     t_matrix                    *graph_matrix,
@@ -24,7 +26,25 @@ graph_trans_matrix_add_entry(
     int                     start_vertex,
     int                     end_vertex);
 
-int
-graph_trans_matrix_read_graph_file(
-        char    *file_name,
-        int     track_costs);
+
+t_matrix *
+graph_trans_matrix_read_directed_graph_file(
+    char                    *file_name);
+
+t_matrix *
+graph_trans_matrix_read_weighted_directed_graph_file(
+    char                    *file_name);     
+
+t_matrix *
+graph_trans_matrix_read_undirected_graph_file(
+    char                    *file_name);
+
+t_matrix *
+graph_trans_matrix_read_weighted_undirected_graph_file(
+    char                    *file_name);
+
+t_matrix *
+graph_trans_matrix_generic_read_graph_file(
+    int                     weighted,
+    int                     undirected,
+    char                    *file_name);

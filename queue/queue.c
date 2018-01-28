@@ -5,7 +5,11 @@
  */
 
 #include <stdio.h>
+#include <ds/debug.h>
+
 #include "queue.h"
+
+#define QUEUE_DEBUG() 0
 
 int
 queue_enqueue(
@@ -20,8 +24,10 @@ queue_enqueue(
 
     if (queue->last == NULL) {
         queue->first = elem + offset;
+#if QUEUE_DEBUG() > 0
         printf("elem: %p, offset: %lu, elem+offset: %p\n",
                 elem, offset, elem+offset);
+#endif /* QUEUE_DEBUG() > 0 */
         queue->last = queue->first;
     } else {
         queue->last->next = elem + offset;
@@ -47,19 +53,17 @@ queue_dequeue(
         return NULL;
     }
     
-    
     return_node = queue->first;
     queue->first = queue->first->next;
     return_node->next = NULL;
     queue->size--;
     
-
     if (queue->size == 0) {
         queue->last = NULL;
     }
-    
+#if QUEUE_DEBUG() > 0
     printf("return_node: %p, offset: %lu, return_node-offset: %p\n",
             return_node, offset, (void*)return_node - offset);
-    
+#endif /* QUEUE_DEBUG() > 0 */
     return (void *)return_node - offset; // need to cast to void prior to return don't want to do ptr_math on queue_node_t 
 }

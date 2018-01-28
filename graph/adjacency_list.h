@@ -77,7 +77,7 @@ graph_adj_list_next(
 /* graph_adj_list_vertex
  *
  * return the graph node at vertex i from
- * neighboorhood of v.
+ * neighborhood of v.
  * @param a_list   - pointer to adjacency list structure
  * @param v        - graph node for which to search 
  *                   neighborhood.

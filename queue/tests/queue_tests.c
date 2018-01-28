@@ -5,6 +5,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+
+#include <ds/debug.h>
+
 #include "../queue.h"
 
 
@@ -15,65 +18,109 @@ typedef struct test_struct_s {
     queue_node_t    queue_link; 
 } test_struct_t;
 
-int
-populate_test_array(
-    test_struct_t       **test_array,
-    int                 size)
-{
-    int i = 0;
-    
-    for (int i = 0; i < size; ++i) {
-        test_array[i] = calloc(1, sizeof(test_struct_t));
-        test_array[i]->queue_link.next = NULL;
-    }
-
-    return 0;
-}
-                
-
-
 
 int main()
 {
-    int i;    
-    size_t vm_offset = struct_offset(struct test_struct_s, queue_link); 
+    int i = 0;
+    int j = 0; 
+    int last_dequeued = 0;
+    int rc = 0;
+    size_t vm_offset = 0;  
     queue_holder_t test_queue;
-    queue_node_t   link;
-    test_struct_t test_element;
-    test_struct_t *return_element;
-    
-    test_struct_t* test_array[TEST_ELEMENTS];
+    test_struct_t *return_element = NULL;
+    test_struct_t *new_element = NULL; 
 
-    populate_test_array(test_array, TEST_ELEMENTS);
-    
-    printf("test_array[0]->item: %d\ntest_array[0]->queue_link: %p\n", 
-           test_array[10]->item, &test_array[10]->queue_link);
-
-    link.next = NULL;
-
+    test_queue.size = 0;
     test_queue.first = NULL;
     test_queue.last = NULL;
-    test_queue.size = 0;
-    
-    test_element.item = 1231213;
-    test_element.queue_link = link; 
 
-    printf("Vmoffset: %lu\n", vm_offset);
+    vm_offset = struct_offset(struct test_struct_s, queue_link); 
 
-    queue_enqueue(&test_queue, &test_element, vm_offset);
-    
-    printf("Queue size is now %d\n", queue_length(&test_queue));
+    for (i = 0; i < TEST_ELEMENTS; ++i) {
+        new_element = calloc(1, sizeof(*new_element));
+        
+        if (!new_element) {
+            fprintf(stderr, "[%s:%u]: calloc returned null.  OOM Error.\n",
+                    DEBUG_INFO);
+            rc = 1;
+            break;
+        }
 
-    return_element = queue_dequeue(&test_queue, vm_offset);
-    
-    printf("Return element: %d\n", return_element->item);
-    
-    printf("Queue.first: %p\n", test_queue.first);
-    printf("Queue.last: %p\n", test_queue.last);
-    printf("Queue size is now %d\n", queue_length(&test_queue));
+        new_element->item = i;
+        rc = queue_enqueue(&test_queue, new_element, vm_offset);
+        if (rc) { 
+            break;
+        }
+    }
+    VERIFY_TEST(rc, "SEQUENTIAL ENQUEUE");
+
+
+    for (i = 0; i < TEST_ELEMENTS; ++i) {  
+        return_element = queue_dequeue(&test_queue, vm_offset);
+        if (!return_element) {
+            rc = 1;
+            break;
+        }
+        
+        if (return_element->item != i) {
+            rc = 1;
+            break;
+        }
+        
+        free(return_element);
+    }
+    VERIFY_TEST(rc, "SEQUENTIAL DEQUEUE");
     
 
-    return 0;
+    for (i = 0; i < TEST_ELEMENTS; ++i) {
+        new_element = calloc(1, sizeof(*new_element));
+        if (!new_element) {
+            fprintf(stderr, "[%s:%u]: calloc returned null.  OOM Error.\n",
+                    DEBUG_INFO);
+            rc = 1;
+            break;
+        }
+        new_element->item = i;
+        rc = queue_enqueue(&test_queue, new_element, vm_offset);
+        if (rc) {
+            free(new_element);
+            break;
+        }
+        
+        if (i % 7 == 5) {
+            for (j = 0; j < 3; ++j) {
+                return_element = queue_dequeue(&test_queue, vm_offset);
+                printf("[%s:%u]: return_element->item: %d\n",
+                        DEBUG_INFO, return_element->item);
+                if (!return_element) {
+                    rc = 1;
+                    break;
+                }
+
+                if (return_element->item != last_dequeued) {
+                    rc = 1;
+                    free(return_element);
+                    break;
+                }
+                last_dequeued++;
+                free(return_element);
+            }
+        }
+    }
+    VERIFY_TEST(rc, "MIXED QUEUE OPS");
+
+    int remaining_elements = queue_length(&test_queue);
+    for (i = 0; i < remaining_elements; ++i) {
+        return_element = queue_dequeue(&test_queue, vm_offset);
+        if (!return_element) {
+            rc = 1;
+            break;
+        }
+        free(return_element); 
+    }
+    VERIFY_TEST(rc, "CLEANUP");
+
+    return rc;
 }
 
 

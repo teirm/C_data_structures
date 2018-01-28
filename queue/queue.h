@@ -4,6 +4,9 @@
  * Purpose: Header file for queue
  */
 
+#ifndef QUEUE_H_GUARD
+#define QUEUE_H_GUARD
+
 #include <stdlib.h>
 
 typedef struct queue_node_s {
@@ -25,4 +28,4 @@ int queue_enqueue (queue_holder_t *queue, void *elem, size_t offset);
 void* queue_dequeue(queue_holder_t *queue, size_t offset);
 
 
-
+#endif /* QUEUE_H_GUARD */

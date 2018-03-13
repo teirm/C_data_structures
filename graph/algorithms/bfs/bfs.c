@@ -14,18 +14,21 @@ graph_adj_list_run_bfs(
 {
     struct node         *neighborhood_list = NULL;  
     struct node         *current_neighbor = NULL;
-    size_t vm_offset = struct_offset(graph_queue_node_t, graph_queue_link);
+    size_t vm_offset =  struct_offset(graph_queue_node_t, graph_queue_link);
     
     graph_queue_node_t  *queue_node = NULL;
     graph_node          *vertex_neighbor = NULL;  
 
     queue_node = calloc(1, sizeof(*queue_node));
     queue_node->gnode = a_list->list_array[vertex];    
-    
+   
+    /* Enqueue the first graph node */
     queue_enqueue(bfs_queue, queue_node, vm_offset);
     
     while (queue_length(bfs_queue) != 0) {
         neighborhood_list = queue_dequeue(bfs_queue, vm_offset);
+        /* Enqueue all nodes in that nodes neighborhood.
+         * that have not been visited yet.*/ 
         for (current_neighbor = neighborhood_list;
              current_neighbor != NULL;
              current_neighbor = current_neighbor->next) {
@@ -39,7 +42,7 @@ graph_adj_list_run_bfs(
                 queue_enqueue(bfs_queue, queue_node, vm_offset);
             }
         }
-        free(neighborhood_list);
+        free(queue_node);
     }
 
     return 0;
@@ -59,33 +62,29 @@ graph_adj_list_start_bfs(
     bfs_queue.first = NULL;
     bfs_queue.last = NULL;
 
-    bfs_info->marked[start_vertex] = 1;
-    bfs_info->mark_count = 1;
+    bfs_info->mark_count = 0;
 
-    graph_adj_list_run_bfs(start_vertex,
-                            &bfs_queue,
-                            a_list,
-                            bfs_info);
-
-    while (bfs_info->mark_count != a_list->vertices) {
-        /* The graph is not a singly connected component
-         * so find the next unmarked vertex and begin
-         * BFS there.
-         */
+    do {
         for (i = 0; i < a_list->vertices; ++i) {
             if (!bfs_info->marked[i]) {
                 start_vertex = i;
-                bfs_info->marked[i] = 1;
-                bfs_info->mark_count++;
                 break;
             }
         }
-        graph_adj_list_run_bfs(start_vertex,
-                               &bfs_queue,
-                               a_list,
-                               bfs_info);
-    }
+        bfs_info->marked[start_vertex] = 1;
+        bfs_info->mark_count++;
 
+        graph_adj_list_run_bfs(start_vertex,
+                                &bfs_queue,
+                                a_list,
+                                bfs_info);
+    
+    /* A single run of bfs may not touch every node
+     * if the graph is not a singly connected component.
+     * Find the next unmarked vertex and begin
+     * BFS there.
+     */
+    } while (bfs_info->mark_count != a_list->vertices); 
 
     return 0;
 }

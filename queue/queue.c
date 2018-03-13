@@ -65,5 +65,10 @@ queue_dequeue(
     printf("return_node: %p, offset: %lu, return_node-offset: %p\n",
             return_node, offset, (void*)return_node - offset);
 #endif /* QUEUE_DEBUG() > 0 */
-    return (void *)return_node - offset; // need to cast to void prior to return don't want to do ptr_math on queue_node_t 
+
+    /* need to cast to void prior to returning since
+     * the ptr_math should not be done on the
+     * queue_node_t
+     */
+    return (void *)return_node - offset; 
 }
